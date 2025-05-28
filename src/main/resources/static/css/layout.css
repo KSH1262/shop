@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* 전체 화면 높이 확보 */
+}
+
+.content {
+    flex-grow: 1;
+}
+
+.footer {
+
+    color: white;
+    text-align: center;
+}
