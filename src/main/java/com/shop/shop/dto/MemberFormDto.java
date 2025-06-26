@@ -23,4 +23,7 @@ public class MemberFormDto {
 
     @NotBlank(message = "주소는 필수 입력 값입니다.")
     private String address;
+
+    @NotBlank(message = "회원 유형은 필수 선택입니다.")
+    private String role; // "USER" 또는 "ADMIN"
 }

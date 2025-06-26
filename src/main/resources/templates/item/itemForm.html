@@ -3,15 +3,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 
-<th:block layout:fragment="script">
-    <script th:src="@{/js/item.js}"></script>
-</th:block>
+<head>
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/item.js}"></script>
+    </th:block>
 
-<th:block layout:fragment="css">
-    <link rel="stylesheet" th:href="@{/css/item.css}">
-</th:block>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/item.css}">
+    </th:block>
+</head>
 
-
+<body>
 <div layout:fragment="content"  class="container mt-3">
 
     <form role="form" method="post" enctype="multipart/form-data" th:object="${itemFormDto}">
@@ -90,4 +92,6 @@
     </form>
 
 </div>
+</body>
+
 </html>

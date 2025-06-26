@@ -6,17 +6,16 @@
 <head>
   <meta name="_csrf" th:content="${_csrf.token}"/>
   <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <th:block layout:fragment="script">
+    <script th:src="@{/js/item.js}"></script>
+  </th:block>
+
+  <th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/item.css}">
+  </th:block>
 </head>
 
-<th:block layout:fragment="script">
-  <script th:src="@{/js/item.js}"></script>
-</th:block>
-
-<th:block layout:fragment="css">
-  <link rel="stylesheet" th:href="@{/css/item.css}">
-</th:block>
-
-
+<body>
 <div layout:fragment="content" style="margin-left:25%;margin-right:25%">
 
   <input type="hidden" id="itemId" th:value="${item.id}">
@@ -76,5 +75,6 @@
   </div>
 
 </div>
+</body>
 
 </html>

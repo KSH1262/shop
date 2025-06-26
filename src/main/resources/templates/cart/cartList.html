@@ -6,17 +6,16 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/cart.js}"></script>
+    </th:block>
+
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/cart.css}">
+    </th:block>
 </head>
 
-<th:block layout:fragment="script">
-    <script th:src="@{/js/cart.js}"></script>
-</th:block>
-
-<th:block layout:fragment="css">
-    <link rel="stylesheet" th:href="@{/css/cart.css}">
-</th:block>
-
-
+<body>
 <div layout:fragment="content" class="content-mg">
 
     <h2 class="mb-4">
@@ -87,5 +86,6 @@
     </div>
 
 </div>
+</body>
 
 </html>

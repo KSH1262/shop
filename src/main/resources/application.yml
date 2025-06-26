@@ -5,6 +5,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/shop?serverTimezone=UTC
+    #url: jdbc:mysql://localhost:3306/shop?serverTimezone=UTC
+    #?createDatabaseIfNotExist=true
     username: root
     password: sam5754752
 
@@ -23,9 +25,16 @@ spring:
       maxFileSize: 50MB
       maxRequestSize: 100MB
 
-itemImgLocation: C:\Users\USER\Desktop\code\Spring\shop\item
+  thymeleaf:
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    cache: false
 
-uploadPath: file:///C:\Users\USER\Desktop\code\Spring\shop
+itemImgLocation: /app/item
+uploadPath: file:///app
+
 
 logging:
   level:

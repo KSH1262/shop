@@ -56,7 +56,7 @@ public class CartController {
         // 장바구니에 담겨있는 상품 조회
         List<CartDetailDto> cartDetailDtoList = cartService.getCartList(principal.getName());
         model.addAttribute("cartItems", cartDetailDtoList); // 조회한 장바구니 상품 정보 뷰로 전달
-        return "/cart/cartList";
+        return "cart/cartList";
     }
 
     @PatchMapping("/cartItem/{cartItemId}") // 요청된 자원의 일부를 업데이트 할 때 PATCH 사용, 장바구니 수량만 업데이트

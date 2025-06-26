@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec = "http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -20,12 +21,12 @@
 </head>
 <body>
     <div class="wrapper">
-        <div th:replace="~{/layout/fragments/header::header}"></div>
+        <div th:replace="~{layout/fragments/header :: header}"></div>
         <div class="content">
             <div layout:fragment="content" ></div>
         </div>
         <div class="footer">
-            <div th:replace="~{/layout/fragments/footer::footer}"></div>
+            <div th:replace="~{layout/fragments/footer :: footer}"></div>
         </div>
     </div>
 
