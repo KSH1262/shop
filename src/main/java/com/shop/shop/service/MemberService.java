@@ -2,6 +2,7 @@ package com.shop.shop.service;
 
 import com.shop.shop.entity.Member;
 import com.shop.shop.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,8 +24,10 @@ public class MemberService implements UserDetailsService { // MemberService 가 
     }
 
     private void validateDuplicateMember(Member member) { // 가입된 회원의 경우 예외 발생
-            Member findMember = memberRepository.findByEmail(member.getEmail());
-            if (findMember != null){
+        Member findMember = memberRepository.findByEmail(member.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));
+
+        if (findMember != null){
                 throw new IllegalStateException("이미 가입된 회원입니다.");
             }
     }
@@ -32,7 +35,8 @@ public class MemberService implements UserDetailsService { // MemberService 가 
     @Override
     // 로그인할 유저의 email을 전달 받음
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));
 
         if (member == null){
             throw new UsernameNotFoundException(email);

@@ -36,7 +36,8 @@ public class CartService {
 
         // 장바구니에 담을 상품 엔티티 조회
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
-        Member member = memberRepository.findByEmail(email); // 현재 로그인한 회원 엔티티 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 가진 회원을 찾을 수 없습니다.")); // 현재 로그인한 회원 엔티티 조회
 
         Cart cart = cartRepository.findByMemberId(member.getId()); // 현재 로그인한 회원의 장바구니 엔티티 조회
         if (cart == null){ // 상품을 처음 장바구니에 담을 경우 해당 회원의 장바구니 엔티티 생성
@@ -63,7 +64,8 @@ public class CartService {
 
         List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
 
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 가진 회원을 찾을 수 없습니다."));
         Cart cart = cartRepository.findByMemberId(member.getId()); // 현재 로그인한 회원의 장바구니 엔티티 조회
         if (cart == null){ // 장바구니에 상품을 한 번도 안 담았을 경우 장바구니 엔티티가 없으므로 빈 리스트 반환
             return cartDetailDtoList;
@@ -76,7 +78,8 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public boolean validateCartItem(Long cartItemId, String email){
-        Member curMember = memberRepository.findByEmail(email); // 로그인한 회원 조회
+        Member curMember = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("현재 로그인한 회원을 찾을 수 없습니다.")); // 로그인한 회원 조회
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(EntityNotFoundException::new);
         Member savedMember = cartItem.getCart().getMember(); //장바구니 상푸 저장한 회원 조회
 

@@ -111,8 +111,18 @@ public class ItemController {
 
     @GetMapping("/item/{itemId}")
     public String itemDtl(Model model, @PathVariable("itemId") Long itemId){
-        ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
-        model.addAttribute("item", itemFormDto);
-        return "item/itemDtl";
+        try {
+            ItemFormDto itemFormDto = itemService.getItemDtl(itemId); // itemId로 상품 정보 로드
+            model.addAttribute("itemFormDto", itemFormDto);
+            model.addAttribute("item", itemFormDto);
+
+        } catch (EntityNotFoundException e) {
+            model.addAttribute("errorMessage", "존재하지 않는 상품입니다.");
+            model.addAttribute("itemFormDto", new ItemFormDto()); // 오류 발생 시 빈 객체
+            return "item/itemNotFound"; // 에러 페이지로 리다이렉트하거나 다른 처리
+        }
+        return "item/itemDtl"; // 상품 상세 페이지 템플릿 이름
+
+
     }
 }

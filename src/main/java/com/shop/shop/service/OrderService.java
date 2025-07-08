@@ -33,7 +33,8 @@ public class OrderService {
     public Long order(OrderDto orderDto, String email){
 
         Item item = itemRepository.findById(orderDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 주문할 상품 조회
-        Member member = memberRepository.findByEmail(email); // 이메일 정보를 이용, 회원 정보 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));; // 이메일 정보를 이용, 회원 정보 조회
 
         List<OrderItem> orderItemList = new ArrayList<>();
         OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount()); // 주문 상품 엔티티 생성
@@ -71,7 +72,8 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public boolean validateOrder(Long orderId, String email){ // 로그인한 사용자와 주문한 사용자가 같은지 검사
-        Member curMember = memberRepository.findByEmail(email);
+        Member curMember = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));;
         Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
         Member savedMember = order.getMember();
 
@@ -89,7 +91,8 @@ public class OrderService {
 
     public Long orders(List<OrderDto> orderDtoList, String email){
 
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));;
         List<OrderItem> orderItemList = new ArrayList<>();
 
         for (OrderDto orderDto : orderDtoList){ // 주문할 상품 리스트 생성
