@@ -39,7 +39,3 @@ out/
 .vscode/
 
 .env
-
-src/main/resources/application*.yml
-
-docker-compose.yml
