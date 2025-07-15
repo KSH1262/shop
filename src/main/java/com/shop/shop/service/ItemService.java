@@ -95,4 +95,11 @@ public class ItemService {
         return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
 
+    @Transactional(readOnly = true)
+    public void deleteItem(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다. id: " + itemId));
+
+        itemRepository.delete(item); // 엔티티 객체를 넘겨 삭제
+    }
 }

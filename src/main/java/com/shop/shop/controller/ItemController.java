@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -122,7 +122,18 @@ public class ItemController {
             return "item/itemNotFound"; // 에러 페이지로 리다이렉트하거나 다른 처리
         }
         return "item/itemDtl"; // 상품 상세 페이지 템플릿 이름
-
-
+    }
+    @DeleteMapping("/item/{itemId}")
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteItem(@PathVariable("itemId") Long itemId) {
+        try {
+            itemService.deleteItem(itemId);
+            // 삭제 성공 시 200 OK 상태 코드와 메시지 반환
+            return new ResponseEntity<>("상품이 성공적으로 삭제되었습니다.", HttpStatus.OK);
+        } catch (Exception e) {
+            // 삭제 실패 시 400 Bad Request 상태 코드와 에러 메시지 반환
+            return new ResponseEntity<>("상품 삭제에 실패했습니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

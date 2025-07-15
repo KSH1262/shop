@@ -95,59 +95,7 @@ function addCart(){
     });
 }
 
-$(document).ready(function() {
-// 여기를 수정했습니다: id="reviewItemId"로 변경
-var itemId = $('#reviewItemId').val();
-loadReviews(itemId);
 
-$('#submitReviewBtn').off('click').on('click', function(event) {
-    event.preventDefault();
-
-    var $submitBtn = $(this);
-        $submitBtn.prop('disabled', true);
-
-    var rating = $('#rating').val();
-    var comment = $('#comment').val();
-    var token = $("meta[name='_csrf']").attr("content");
-    var header = $("meta[name='_csrf_header']").attr("content");
-
-    if (!comment.trim()) {
-        $('#reviewError').text('리뷰 내용을 입력해주세요.');
-        return;
-    } else {
-        $('#reviewError').text('');
-    }
-
-    $.ajax({
-        url: '/review/' + itemId,
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ rating: rating, comment: comment }),
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader(header, token);
-        },
-        success: function(result) {
-            alert(result);
-            $('#comment').val(''); // 입력 필드 초기화
-            loadReviews(itemId); // 리뷰 목록 새로고침
-        },
-        error: function(jqXHR, status, error) {
-            if (jqXHR.status == '400') { // Bad Request (유효성 검사 실패)
-                alert(jqXHR.responseText);
-            } else if (jqXHR.status == '409') { // Conflict (중복 리뷰)
-                alert(jqXHR.responseText);
-            } else {
-                alert('리뷰 등록에 실패했습니다: ' + jqXHR.responseText);
-            }
-        },
-        complete: function() { // 요청이 완료되었을 때 (성공이든 실패든)
-            $submitBtn.prop('disabled', false); // 버튼 다시 활성화
-        }
-
-    });
-});
-
-// 리뷰 로드 함수
 function loadReviews(itemId) {
     $.ajax({
         url: '/item/' + itemId + '/reviews',
@@ -187,54 +135,114 @@ function loadReviews(itemId) {
             updateDeleteButtonsVisibility(); // 삭제 버튼 가시성 업데이트
         },
         error: function(jqXHR, status, error) {
-            console.error('리뷰 로드 실패:', error);
             $('#reviewList').html('<p class="text-danger text-center">리뷰를 불러오는 데 실패했습니다.</p>');
         }
     });
 }
 
-// 삭제 버튼 클릭 이벤트
-$(document).off('click', '.delete-review-btn').on('click', '.delete-review-btn', function(event) {
-    event.preventDefault();
-    if (confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
-        var reviewId = $(this).data('review-id');
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
-
-        $.ajax({
-            url: '/review/' + reviewId,
-            type: 'DELETE',
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(header, token);
-            },
-            success: function(result) {
-                alert(result);
-                loadReviews(itemId); // 리뷰 목록 새로고침
-            },
-            error: function(jqXHR, status, error) {
-                alert('리뷰 삭제에 실패했습니다: ' + jqXHR.responseText);
-            }
-        });
-    }
-});
-
-// 삭제 버튼 가시성 업데이트 함수
 function updateDeleteButtonsVisibility() {
-
     $('.delete-review-btn').each(function() {
         var reviewMemberEmail = $(this).data('review-member-email');
-
-        // 리뷰 작성자의 이메일과 현재 로그인 사용자의 이메일이 같으면 삭제 버튼 표시
-        // currentLoggedInUserEmail 변수를 직접 사용합니다.
-        if (reviewMemberEmail && currentLoggedInUserEmail && currentLoggedInUserEmail === reviewMemberEmail) {
+        if (reviewMemberEmail && typeof currentLoggedInUserEmail !== 'undefined' && currentLoggedInUserEmail === reviewMemberEmail) {
             $(this).show();
         } else {
             $(this).hide();
         }
     });
 }
-});
 
+$(document).ready(function() {
+    if ($('#reviewItemId').length) {
+        var itemIdForReviews = $('#reviewItemId').val(); // itemIdForReviews 변수를 사용합니다.
+
+        if (itemIdForReviews && !isNaN(itemIdForReviews)) {
+            loadReviews(itemIdForReviews); // loadReviews 호출 시 itemIdForReviews 전달
+        } else {
+            // 상품 상세 페이지이지만 itemId가 없는 경우 (예외 상황 또는 URL 조작 등)
+            $('#reviewList').html('<p class="text-danger text-center">리뷰를 불러올 상품 정보가 올바르지 않습니다.</p>');
+            $('#reviewForm').hide(); // 리뷰 입력 폼 숨기기 (상품 ID가 유효하지 않을 경우)
+        }
+
+        $('#submitReviewBtn').off('click').on('click', function(event) {
+            event.preventDefault();
+
+            var $submitBtn = $(this);
+            $submitBtn.prop('disabled', true);
+
+            var rating = $('#rating').val();
+            var comment = $('#comment').val();
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            if (!comment.trim()) {
+                $('#reviewError').text('리뷰 내용을 입력해주세요.');
+                $submitBtn.prop('disabled', false); // 에러 시 버튼 다시 활성화
+                return;
+            } else {
+                $('#reviewError').text('');
+            }
+
+            // itemIdForReviews가 유효한지 다시 한번 확인
+            if (!itemIdForReviews || isNaN(itemIdForReviews)) {
+                 alert('유효한 상품 ID가 없어 리뷰를 등록할 수 없습니다.');
+                 $submitBtn.prop('disabled', false);
+                 return;
+            }
+
+            $.ajax({
+                url: '/review/' + itemIdForReviews, // ★★★ itemIdForReviews 사용
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ rating: rating, comment: comment }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function(result) {
+                    alert(result);
+                    $('#comment').val(''); // 입력 필드 초기화
+                    loadReviews(itemIdForReviews); // ★★★ itemIdForReviews 사용
+                },
+                error: function(jqXHR, status, error) {
+                    if (jqXHR.status == '400') {
+                        alert(jqXHR.responseText);
+                    } else if (jqXHR.status == '409') {
+                        alert(jqXHR.responseText);
+                    } else {
+                        alert('리뷰 등록에 실패했습니다: ' + jqXHR.responseText);
+                    }
+                },
+                complete: function() {
+                    $submitBtn.prop('disabled', false); // 버튼 다시 활성화
+                }
+            });
+        });
+
+        // 리뷰 삭제 버튼 클릭 이벤트
+        $(document).off('click', '.delete-review-btn').on('click', '.delete-review-btn', function(event) {
+            event.preventDefault();
+            if (confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
+                var reviewId = $(this).data('review-id');
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+
+                $.ajax({
+                    url: '/review/' + reviewId,
+                    type: 'DELETE',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    success: function(result) {
+                        alert(result);
+                        loadReviews(itemIdForReviews); // ★★★ itemIdForReviews 사용
+                    },
+                    error: function(jqXHR, status, error) {
+                        alert('리뷰 삭제에 실패했습니다: ' + jqXHR.responseText);
+                    }
+                });
+            }
+        });
+    }
+});
 
 
 
@@ -246,6 +254,41 @@ $(document).ready(function(){
         alert(errorMessage);
     }
     bindDomEvent();
+
+    if ($('#itemIdHidden').length) {
+        var itemIdForForm = $('#itemIdHidden').val(); // 현재 상품의 ID 가져오기 (등록 시에는 비어있음)
+
+        // 삭제 버튼 클릭 이벤트
+        $('#deleteItemBtn').off('click').on('click', function(event) {
+            event.preventDefault(); // 버튼의 기본 동작 방지
+
+            // 상품 ID가 없으면 (즉, 새 상품 등록 페이지이면) 삭제 불가
+            if (!itemIdForForm) {
+                alert('삭제할 상품 ID가 없습니다.');
+                return;
+            }
+
+            if (confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+
+                $.ajax({
+                    url: '/admin/item/' + itemIdForForm, // 삭제할 상품의 ID를 URL에 포함
+                    type: 'DELETE', // DELETE 메소드 사용
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    success: function(result) {
+                        alert(result);
+                        location.href = '/admin/items'; // 삭제 성공 시 상품 관리 페이지로 이동
+                    },
+                    error: function(jqXHR, status, error) {
+                        alert('상품 삭제에 실패했습니다: ' + jqXHR.responseText);
+                    }
+                });
+            }
+        });
+    }
 });
 
 function bindDomEvent(){
