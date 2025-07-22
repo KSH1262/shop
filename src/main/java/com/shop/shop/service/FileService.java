@@ -19,6 +19,18 @@ public class FileService {
         String savedFileName = uuid.toString() + extension;
         String fileUploadFullUrl = uploadPath + "/" + savedFileName;
 
+        // 디렉토리가 없으면 생성
+        File directory = new File(uploadPath);
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs(); // 디렉토리와 상위 디렉토리 모두 생성
+            if (created) {
+                log.info("디렉토리 생성 성공: " + uploadPath);
+            } else {
+                log.warning("디렉토리 생성 실패 (권한 문제 등): " + uploadPath);
+                throw new IOException("디렉토리 생성 실패: " + uploadPath);
+            }
+        }
+
         try {
             // FileOutputStream : 바이트 단위의 출력을 내보내는 클래스
             FileOutputStream fos = new FileOutputStream(fileUploadFullUrl);
