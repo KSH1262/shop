@@ -295,7 +295,14 @@ function bindDomEvent(){
     $(".custom-file-input").on("change", function(){
         var fileName = $(this).val().split("\\").pop();
         var fileExt = fileName.substring(fileName.lastIndexOf(".")+1);
-        fileExt = fileExt.toLowerCase();
+
+        // fileExt가 유효한 문자열인지 확인
+        if(fileExt && fileExt.length > 0) {
+            fileExt = fileExt.toLowerCase();
+        } else {
+            // 확장자가 없거나 유효하지 않은 경우에 대한 처리 (예: 빈 문자열로 설정)
+            fileExt = "";
+        }
 
         if(fileExt != "jpg" && fileExt != "jpeg" && fileExt != "gif" && fileExt != "png" && fileExt != "bmp"){
           alert("이미지 파일만 등록이 가능합니다.");

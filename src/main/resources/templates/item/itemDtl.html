@@ -20,103 +20,103 @@
 </head>
 
 <body>
-<div layout:fragment="content" style="margin-left:25%;margin-right:25%">
+<div layout:fragment="content" class="container mt-4">
 
   <input type="hidden" id="itemId" th:value="${item.id}">
 
-  <div class="d-flex">
-    <div class="repImgDiv">
-      <img th:src="${item.itemImgDtoList[0].imgUrl}" class = "rounded repImg" th:alt="${item.itemNm}">
-    </div>
-    <div class="wd50">
-      <span th:if="${item.itemSellStatus.toString() == 'SELL'}" class="badge badge-primary mgb-15">
-        판매중
-      </span>
-      <span th:unless="${item.itemSellStatus.toString() == 'SELL'}" class="badge btn-danger mgb-15">
-        품절
-      </span>
-      <div class="h4" th:text="${item.itemNm}"></div>
-      <hr class="my-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
 
-      <div class="text-right">
-        <div class="h4 text-danger text-left">
-          <input type="hidden" th:value="${item.price}" id="price" name="price">
-          <span th:text="${item.price}"></span>원
+      <div class="row mb-5">
+        <div class="col-md-6 mb-4 mb-md-0">
+          <img th:src="${item.itemImgDtoList[0].imgUrl}" class="img-fluid rounded shadow-sm" th:alt="${item.itemNm}">
         </div>
-        <div class="input-group w-50">
-          <div class="input-group-prepend">
-            <span class="input-group-text">수량</span>
+
+        <div class="col-md-6">
+          <div class="d-flex justify-content-between align-items-start">
+            <h2 class="h4" th:text="${item.itemNm}"></h2>
+            <span th:if="${item.itemSellStatus.toString() == 'SELL'}" class="badge bg-primary text-light me-1">판매중</span>
+            <span th:unless="${item.itemSellStatus.toString() == 'SELL'}" class="badge bg-danger text-light me-1">품절</span>
           </div>
-          <input type="number" name="count" id="count" class="form-control" value="1" min="1">
-        </div>
-      </div>
-      <hr class="my-4">
 
-      <div class="text-right mgt-50">
-        <h5>결제 금액</h5>
-        <h3 name="totalPrice" id="totalPrice" class="font-weight-bold"></h3>
-      </div>
-      <div th:if="${item.itemSellStatus.toString() == 'SELL'}" class="text-right">
-        <button type="button" class="btn btn-light border border-primary btn-lg" onclick="addCart()">장바구니 담기</button>
-        <button type="button" class="btn btn-primary btn-lg" onclick="order()">주문하기</button>
-      </div>
-      <div th:unless="${item.itemSellStatus.toString() == 'SELL'}" class="text-right">
-        <button type="button" class="btn btn-danger btn-lg">품절</button>
-      </div>
-    </div>
-  </div>
+          <hr class="my-3">
 
-  <div class="jumbotron jumbotron-fluid mgt-30">
-    <div class="container">
-      <h4 class="display-5">상품 상세 설명</h4>
-      <hr class="my-4">
-      <p class="lead" th:text="${item.itemDetail}"></p>
-    </div>
-  </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-danger mb-0">
+              <input type="hidden" th:value="${item.price}" id="price" name="price">
+              <span th:text="${item.price}"></span>원
+            </h4>
+            <div class="input-group" style="width: 150px;">
+              <span class="input-group-text">수량</span>
+              <input type="number" name="count" id="count" class="form-control text-center" value="1" min="1">
+            </div>
+          </div>
 
-  <div th:each="itemImg : ${item.itemImgDtoList}" class="text-center">
-    <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15" width="800">
-  </div>
+          <hr class="my-3">
 
-  <div class="container mt-5">
-    <h4>상품 리뷰</h4>
-    <hr>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5>결제 금액</h5>
+            <h4 name="totalPrice" id="totalPrice" class="fw-bold"></h4>
+          </div>
 
-    <div sec:authorize="isAuthenticated()" class="mb-4 p-3 border rounded">
-      <h5>리뷰 작성</h5>
-      <form id="reviewForm">
-        <input type="hidden" id="reviewItemId" th:value="${itemFormDto.id}">
-        <div class="form-group row mb-2">
-          <label class="col-sm-2 col-form-label">평점</label>
-          <div class="col-sm-10">
-            <select id="rating" class="form-control">
-              <option value="5">★★★★★</option>
-              <option value="4">★★★★☆</option>
-              <option value="3">★★★☆☆</option>
-              <option value="2">★★☆☆☆</option>
-              <option value="1">★☆☆☆☆</option>
-            </select>
+          <div th:if="${item.itemSellStatus.toString() == 'SELL'}" class="d-grid gap-2">
+            <button type="button" class="btn btn-outline-primary btn-lg" onclick="addCart()">장바구니 담기</button>
+            <button type="button" class="btn btn-primary btn-lg" onclick="order()">주문하기</button>
+          </div>
+          <div th:unless="${item.itemSellStatus.toString() == 'SELL'}" class="d-grid gap-2">
+            <button type="button" class="btn btn-danger btn-lg" disabled>품절</button>
           </div>
         </div>
-        <div class="form-group row mb-2">
-          <label class="col-sm-2 col-form-label">내용</label>
-          <div class="col-sm-10">
-            <textarea id="comment" class="form-control" rows="3" placeholder="리뷰 내용을 입력해주세요."></textarea>
-          </div>
-        </div>
-        <button type="button" class="btn btn-primary float-right" id="submitReviewBtn">리뷰 등록</button>
-      </form>
-      <div id="reviewError" class="text-danger mt-2"></div>
-    </div>
-    <div sec:authorize="isAnonymous()" class="mb-4 text-center text-muted">
-      리뷰를 작성하려면 <a th:href="@{/members/login}">로그인</a> 해주세요.
-    </div>
+      </div>
 
-    <div id="reviewList">
-      <p class="text-muted text-center" id="noReviewsMessage">아직 작성된 리뷰가 없습니다.</p>
+      <div class="p-4 bg-light rounded my-5">
+        <h4 class="mb-3">상품 상세 설명</h4>
+        <hr>
+        <p class="lead" th:text="${item.itemDetail}"></p>
+      </div>
+
+      <div class="row">
+        <div th:each="itemImg : ${item.itemImgDtoList}" class="col-12 text-center mb-4">
+          <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="img-fluid rounded" style="max-width: 800px;">
+        </div>
+      </div>
+
+      <div class="my-5">
+        <h4>상품 리뷰</h4>
+        <hr>
+
+        <div sec:authorize="isAuthenticated()" class="p-3 border rounded shadow-sm mb-4">
+          <h5>리뷰 작성</h5>
+          <form id="reviewForm">
+            <input type="hidden" id="reviewItemId" th:value="${itemFormDto.id}">
+            <div class="mb-2">
+              <label class="form-label">평점</label>
+              <select id="rating" class="form-control">
+                <option value="5">★★★★★</option>
+                <option value="4">★★★★☆</option>
+                <option value="3">★★★☆☆</option>
+                <option value="2">★★☆☆☆</option>
+                <option value="1">★☆☆☆☆</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">내용</label>
+              <textarea id="comment" class="form-control" rows="3" placeholder="리뷰 내용을 입력해주세요."></textarea>
+            </div>
+            <button type="button" class="btn btn-primary mt-2 float-end" id="submitReviewBtn">리뷰 등록</button>
+          </form>
+          <div id="reviewError" class="text-danger mt-2"></div>
+        </div>
+        <div sec:authorize="isAnonymous()" class="p-3 text-center text-muted border rounded shadow-sm mb-4">
+          리뷰를 작성하려면 <a th:href="@{/members/login}">로그인</a> 해주세요.
+        </div>
+
+        <div id="reviewList">
+          <p class="text-muted text-center" id="noReviewsMessage">아직 작성된 리뷰가 없습니다.</p>
+        </div>
+      </div>
     </div>
   </div>
-
 </div>
 </body>
 

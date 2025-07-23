@@ -11,7 +11,6 @@
     <script th:src="@{/js/order.js}"></script>
   </th:block>
 
-  <!-- 사용자 CSS 추가 -->
   <th:block layout:fragment="css">
     <link rel="stylesheet" th:href="@{/css/order.css}">
   </th:block>
@@ -20,44 +19,44 @@
 
 
 <body>
-<div layout:fragment="content" class="content-mg">
+<div layout:fragment="content" class="container mt-4">
 
   <h2 class="mb-4">
     구매 이력
   </h2>
 
-  <div th:each="order : ${orders.getContent()}">
-
-    <div class="d-flex mb-3 align-self-center">
-      <h4 th:text="${order.orderDate} + ' 주문 '"></h4>
-      <div class="ml-3">
-        <th:block th:if="${order.orderStatus.toString() == 'ORDER'}">
-          <button type="button" class="btn btn-outline-secondary" th:value="${order.orderId}" onclick="cancelOrder(this.value)">주문취소</button>
-        </th:block>
-        <th:block th:unless="${order.orderStatus.toString() == 'ORDER'}">
-          <h4>(취소 완료)</h4>
-        </th:block>
+  <div th:each="order : ${orders.getContent()}" class="card mb-4 shadow-sm">
+    <div class="card-header bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" th:text="${order.orderDate} + ' 주문'"></h5>
+        <div>
+          <th:block th:if="${order.orderStatus.toString() == 'ORDER'}">
+            <button type="button" class="btn btn-sm btn-outline-secondary" th:value="${order.orderId}" onclick="cancelOrder(this.value)">주문취소</button>
+          </th:block>
+          <th:block th:unless="${order.orderStatus.toString() == 'ORDER'}">
+            <span class="text-muted">(취소 완료)</span>
+          </th:block>
+        </div>
       </div>
     </div>
-    <div class="card d-flex">
-      <div th:each="orderItem : ${order.orderItemDtoList}" class="d-flex mb-3">
-        <div class="repImgDiv">
-          <img th:src="${orderItem.imgUrl}" class = "rounded repImg" th:alt="${orderItem.itemNm}">
+    <div class="card-body">
+      <div th:each="orderItem : ${order.orderItemDtoList}" class="row mb-3 align-items-center">
+        <div class="col-2">
+          <img th:src="${orderItem.imgUrl}" class="img-fluid rounded" th:alt="${orderItem.itemNm}">
         </div>
-        <div class="align-self-center w-75">
-          <span th:text="${orderItem.itemNm}" class="fs24 font-weight-bold"></span>
-          <div class="fs18 font-weight-light">
+        <div class="col-10">
+          <h6 class="font-weight-bold mb-1" th:text="${orderItem.itemNm}"></h6>
+          <p class="mb-0 text-muted">
             <span th:text="${orderItem.orderPrice} +'원'"></span>
-            <span th:text="${orderItem.count} +'개'"></span>
-          </div>
+            <span class="ms-2" th:text="${orderItem.count} +'개'"></span>
+          </p>
         </div>
       </div>
     </div>
-
   </div>
 
   <div th:with="start=${(orders.number/maxPage)*maxPage + 1}, end=(${(orders.totalPages == 0) ? 1 : (start + (maxPage - 1) < orders.totalPages ? start + (maxPage - 1) : orders.totalPages)})" >
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center mt-4">
 
       <li class="page-item" th:classappend="${orders.number eq 0}?'disabled':''">
         <a th:href="@{'/orders/' + ${orders.number-1}}" aria-label='Previous' class="page-link">

@@ -1,43 +1,39 @@
 <!-- header.html -->
-<div th:fragment="header">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-        <div class="container">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse" id="mynavbar">
-                    <a class="navbar-brand" href="/">SHOPPING</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                            <a class="nav-link" href="/admin/item/new">상품 등록</a>
-                        </li>
-                        <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                            <a class="nav-link" href="/admin/items">상품 관리</a>
-                        </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated">
-                            <a class="nav-link" href="/cart">장바구니</a>
-                        </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated">
-                            <a class="nav-link" href="/orders">구매이력</a>
-                        </li>
-                        <li class="nav-item" sec:authorize="isAnonymous">
-                            <a class="nav-link" href="/members/login">로그인</a>
-                        </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated">
-                            <form th:action="@{/logout}" method="post" style="display: inline;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <button type="submit" class="nav-link">
-                                    로그아웃
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                    <form class="d-flex" th:action="@{/}" method="get">
-                        <input name="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </form>
-                </div>
+<div th:fragment="header" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="/">SHOPPING</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <a class="nav-link" href="/admin/item/new">상품 등록</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <a class="nav-link" href="/admin/items">상품 관리</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated">
+                        <a class="nav-link" href="/cart">장바구니</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated">
+                        <a class="nav-link" href="/orders">구매이력</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAnonymous">
+                        <a class="nav-link" href="/members/login">로그인</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated">
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="nav-link">
+                                로그아웃
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+                <form class="d-flex me-2" th:action="@{/}" method="get">
+                    <input name="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
             </div>
         </div>
     </nav>

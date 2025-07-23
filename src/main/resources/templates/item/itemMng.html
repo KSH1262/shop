@@ -14,34 +14,37 @@
 </head>
 
 <body>
-<div layout:fragment="content" class="container mt-3">
+<div layout:fragment="content" class="container mt-4">
+    <h2 class="mb-4">상품 관리</h2>
 
     <form th:action="@{'/admin/items/' + ${items.number}}" role="form" method="get" th:object="${items}">
-        <table class="table">
-            <thead>
-            <tr>
-                <td>상품아이디</td>
-                <td>상품명</td>
-                <td>상태</td>
-                <td>등록자</td>
-                <td>등록일</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item, status: ${items.getContent()}">
-                <td th:text="${item.id}"></td>
-                <td>
-                    <a th:href="'/admin/item/'+${item.id}" th:text="${item.itemNm}"></a>
-                </td>
-                <td th:text="${item.itemSellStatus == T(com.shop.shop.constant.ItemSellStatus).SELL} ? '판매중' : '품절'"></td>
-                <td th:text="${item.createdBy}"></td>
-                <td th:text="${item.regTime}"></td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <td>상품아이디</td>
+                    <td>상품명</td>
+                    <td>상태</td>
+                    <td>등록자</td>
+                    <td>등록일</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, status: ${items.getContent()}">
+                    <td th:text="${item.id}"></td>
+                    <td>
+                        <a th:href="'/admin/item/'+${item.id}" th:text="${item.itemNm}"></a>
+                    </td>
+                    <td th:text="${item.itemSellStatus == T(com.shop.shop.constant.ItemSellStatus).SELL} ? '판매중' : '품절'"></td>
+                    <td th:text="${item.createdBy}"></td>
+                    <td th:text="${item.regTime}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <div th:with="start=${(items.number/maxPage)*maxPage + 1}, end=(${(items.totalPages == 0) ? 1 : (start + (maxPage - 1) < items.totalPages ? start + (maxPage - 1) : items.totalPages)})" >
-            <ul class="pagination justify-content-center">
+        <div th:with="start=${(items.number/maxPage)*maxPage + 1}, end=(${(items.totalPages == 0) ? 1 : (start + (maxPage - 1) < items.totalPages ? start + (maxPage - 1) : items.totalPages)})">
+            <ul class="pagination justify-content-center mt-4">
 
                 <li class="page-item" th:classappend="${items.first}?'disabled'">
                     <a th:onclick="'javascript:page(' + ${items.number - 1} + ')'" aria-label='Previous' class="page-link">
@@ -62,32 +65,41 @@
             </ul>
         </div>
 
-        <div class="container-sm d-flex justify-content-center align-items-center gap-2 flex-nowrap"
-             style="max-width: 800px; margin: auto;"
-             th:object="${itemSearchDto}">
-
-            <select th:field="*{searchDateType}" class="form-control" style="width: 120px; flex-grow: 0;">
-                <option value="all">전체기간</option>
-                <option value="1d">1일</option>
-                <option value="1w">1주</option>
-                <option value="1m">1개월</option>
-                <option value="6m">6개월</option>
-            </select>
-
-            <select th:field="*{searchSellStatus}" class="form-control" style="width: 140px; flex-grow: 0;">
-                <option value="">판매상태(전체)</option>
-                <option value="SELL">판매</option>
-                <option value="SOLD_OUT">품절</option>
-            </select>
-
-            <select th:field="*{searchBy}" class="form-control" style="width: 120px; flex-grow: 0;">
-                <option value="itemNm">상품명</option>
-                <option value="createdBy">등록자</option>
-            </select>
-
-            <input th:field="*{searchQuery}" type="text" class="form-control" style="width: 200px; flex-grow: 0;" placeholder="검색어를 입력해주세요">
-
-            <button id="searchBtn" type="submit" class="btn btn-primary" style="width: 80px; flex-grow: 0;">검색</button>
+        <div class="mt-4" th:object="${itemSearchDto}">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-auto">
+                    <label class="form-label">기간</label>
+                    <select th:field="*{searchDateType}" class="form-select">
+                        <option value="all">전체기간</option>
+                        <option value="1d">1일</option>
+                        <option value="1w">1주</option>
+                        <option value="1m">1개월</option>
+                        <option value="6m">6개월</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <label class="form-label">상태</label>
+                    <select th:field="*{searchSellStatus}" class="form-select">
+                        <option value="">판매상태(전체)</option>
+                        <option value="SELL">판매</option>
+                        <option value="SOLD_OUT">품절</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <label class="form-label">검색 기준</label>
+                    <select th:field="*{searchBy}" class="form-select">
+                        <option value="itemNm">상품명</option>
+                        <option value="createdBy">등록자</option>
+                    </select>
+                </div>
+                <div class="col-md">
+                    <label class="form-label">검색어</label>
+                    <input th:field="*{searchQuery}" type="text" class="form-control" placeholder="검색어를 입력해주세요">
+                </div>
+                <div class="col-md-auto">
+                    <button id="searchBtn" type="submit" class="btn btn-primary w-100">검색</button>
+                </div>
+            </div>
         </div>
     </form>
 </div>

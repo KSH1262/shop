@@ -123,7 +123,7 @@ public class ItemController {
         }
         return "item/itemDtl"; // 상품 상세 페이지 템플릿 이름
     }
-    @DeleteMapping("/item/{itemId}")
+    @DeleteMapping("/admin/item/{itemId}")
     @ResponseBody
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteItem(@PathVariable("itemId") Long itemId) {
