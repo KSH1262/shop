@@ -69,7 +69,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
 
         List<Item> content = queryFactory
                 .selectFrom(QItem.item)
-                .where(regDtsAfter(itemSearchDto.getSearchDateType()),
+                .where(QItem.item.is_deleted.eq(false),
+                        regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
                         searchByLike(itemSearchDto.getSearchBy(),
                                 itemSearchDto.getSearchQuery()))
@@ -79,7 +80,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 .fetch();
 
         long total = queryFactory.select(Wildcard.count).from(QItem.item)
-                .where(regDtsAfter(itemSearchDto.getSearchDateType()),
+                .where(QItem.item.is_deleted.eq(false),
+                        regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
                         searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery()))
                 .fetchOne();
@@ -108,7 +110,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 )
                 .from(itemImg)
                 .join(itemImg.item, item)
-                .where(itemImg.repImgYn.eq("Y")) // 상품 이미지에 경우 대표 상품 이미지만 불러옴
+                .where(QItem.item.is_deleted.eq(false),
+                        itemImg.repImgYn.eq("Y")) // 상품 이미지에 경우 대표 상품 이미지만 불러옴
                 .where(itemNmLike(itemSearchDto.getSearchQuery()))
                 .orderBy(item.id.desc())
                 .offset(pageable.getOffset())
@@ -119,7 +122,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 .select(Wildcard.count)
                 .from(itemImg)
                 .join(itemImg.item, item)
-                .where(itemImg.repImgYn.eq("Y"))
+                .where(QItem.item.is_deleted.eq(false),
+                        itemImg.repImgYn.eq("Y"))
                 .where(itemNmLike(itemSearchDto.getSearchQuery()))
                 .fetchOne()
                 ;

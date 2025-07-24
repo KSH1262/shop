@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -37,6 +38,17 @@ public class Item extends BaseEntity{
 
     @Enumerated
     private ItemSellStatus itemSellStatus;
+
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private boolean is_deleted;
+
+    public boolean getIs_deleted(){
+        return is_deleted;
+    }
+    public void setIs_deleted(boolean is_deleted){
+        this.is_deleted = is_deleted;
+    }
 
     public void updateItem(ItemFormDto itemFormDto){
         this.itemNm = itemFormDto.getItemNm();
