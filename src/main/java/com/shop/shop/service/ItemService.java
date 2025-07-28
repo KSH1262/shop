@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,12 +67,17 @@ public class ItemService {
         return itemFormDto;
     }
 
-    public Long updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
+    public Long updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList, String currentUserEmail) throws Exception{
 
         // 상품 수정
         // 상품 등록 화면으로부터 전달 받은 상품 아이디 이용 상품 엔티티 조회
         Item item = itemRepository.findById(itemFormDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
+
+        if (!item.getCreatedBy().equals(currentUserEmail)) { // 현재 로그인한 사용자와 작성자가 다르면
+            throw new AccessDeniedException("작성자만 상품을 수정할 수 있습니다."); // 접근 거부 예외 발생
+        }
+
         item.updateItem(itemFormDto); // 전달 받은 ItemFormDto 를 통해 상품 엔티티 업데이트
 
         List<Long> itemImgIds = itemFormDto.getItemImgIds(); // 상품 이미지 아이디 리스트 조회
@@ -86,8 +92,8 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
-        return itemRepository.getAdminItemPage(itemSearchDto, pageable);
+    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable, String currentUserEmail) {
+        return itemRepository.getAdminItemPage(itemSearchDto, pageable, currentUserEmail);
     }
 
     @Transactional(readOnly = true)
@@ -95,9 +101,13 @@ public class ItemService {
         return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
 
-    public void deleteItem(Long itemId) {
+    public void deleteItem(Long itemId, String currentUserEmail) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다. id: " + itemId));
+
+        if (!item.getCreatedBy().equals(currentUserEmail)) { // 현재 로그인한 사용자와 작성자가 다르면
+            throw new AccessDeniedException("작성자만 상품을 삭제할 수 있습니다."); // 접근 거부 예외 발생
+        }
 
         // is_deleted 값을 true로 변경하여 소프트 삭제를 수행합니다.
         item.setIs_deleted(true);

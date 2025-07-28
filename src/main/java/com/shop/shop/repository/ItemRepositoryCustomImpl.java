@@ -65,7 +65,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
     }
 
     @Override
-    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable, String currentUserEmail) {
+        QItem item = QItem.item;
 
         List<Item> content = queryFactory
                 .selectFrom(QItem.item)
@@ -73,7 +74,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                         regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
                         searchByLike(itemSearchDto.getSearchBy(),
-                                itemSearchDto.getSearchQuery()))
+                                itemSearchDto.getSearchQuery()),
+                        item.createdBy.eq(currentUserEmail))
                 .orderBy(QItem.item.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -83,7 +85,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 .where(QItem.item.is_deleted.eq(false),
                         regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
-                        searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery()))
+                        searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery()),
+                        item.createdBy.eq(currentUserEmail))
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total); // 조회한 데이터 PageImpl 객체로 반환
