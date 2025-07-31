@@ -62,7 +62,7 @@ Spring Boot 기반의 쇼핑몰 웹 애플리케이션입니다.
 - ├── repository # JPA/QueryDSL 기반 Repository
 - ├── service # 비즈니스 로직 처리
 - ├── templates # Thymeleaf 템플릿 (HTML)
-- └── static # 정적 자원 (JS, CSS)
+- └── static # 정적 자원 (JS, CSS) 
 
 ---
 
