@@ -81,5 +81,5 @@ Spring Boot 기반의 쇼핑몰 웹 애플리케이션입니다.
 | 장바구니                                                      |
 | ![main](./src/main/resources/static/img/cart.png)         |
 
-
+  
 ---
