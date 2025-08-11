@@ -4,10 +4,8 @@
       layout:decorate="~{layout/layout}">
 
 <head>
-    <th:block layout:fragment="script">
-        <script th:src="@{/js/item.js}"></script>
-    </th:block>
-
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <th:block layout:fragment="css">
         <link rel="stylesheet" th:href="@{/css/item.css}">
     </th:block>
@@ -86,6 +84,9 @@
         </div>
     </div>
 </div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/item.js}"></script>
+</th:block>
 </body>
 
 </html>

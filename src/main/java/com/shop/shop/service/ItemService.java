@@ -10,6 +10,7 @@ import com.shop.shop.repository.ItemImgRepository;
 import com.shop.shop.repository.ItemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,24 +31,48 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemImgService itemImgService;
     private final ItemImgRepository itemImgRepository;
+    private final R2StorageService r2StorageService;
 
-    public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
+    public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception {
 
-        // 상품 등록
-        Item item = itemFormDto.createItem(); // 상품 등록 폼으로부터 입력 받은 데이터 이용, item 객체 생성
-        itemRepository.save(item); // 상품 데이터 저장
+        log.info("=== [saveItem 시작] ===");
+        log.info("상품명: {}", itemFormDto.getItemNm());
+        log.info("이미지 파일 개수: {}", itemImgFileList != null ? itemImgFileList.size() : 0);
 
-        // 이미지 등록
-        for (int i=0; i<itemImgFileList.size(); i++){
+        // 1. 상품 등록
+        Item item = itemFormDto.createItem();
+        itemRepository.save(item);
+        log.info("[상품 DB 저장 완료] 상품ID={}", item.getId());
+
+        // 2. 이미지 등록
+        for (int i = 0; i < itemImgFileList.size(); i++) {
+            MultipartFile file = itemImgFileList.get(i);
+            log.info("[이미지 {}] 원본 파일명: {}, 비어있는지 여부: {}", i, file.getOriginalFilename(), file.isEmpty());
+
             ItemImg itemImg = new ItemImg();
             itemImg.setItem(item);
-            if (i == 0){ // 첫 번째 이미지일 경우 대표 상품 이미지 여부 값 "Y", 나머지 "N"
-                itemImg.setRepImgYn("Y");
+            itemImg.setRepImgYn(i == 0 ? "Y" : "N");
+
+            if (!file.isEmpty()) {
+                log.info("[이미지 {}] R2 업로드 시도", i);
+                String imgUrl = r2StorageService.uploadFile(file, "item_images");
+                log.info("[이미지 {}] 업로드 완료 → URL: {}", i, imgUrl);
+
+                String oriImgName = file.getOriginalFilename();
+                String imgName = UUID.randomUUID().toString() +
+                        oriImgName.substring(oriImgName.lastIndexOf("."));
+                log.info("[이미지 {}] 저장용 파일명: {}", i, imgName);
+
+                itemImg.updateItemImg(oriImgName, imgName, imgUrl);
             } else {
-                itemImg.setRepImgYn("N");
+                log.warn("[이미지 {}] 파일 비어있음 - 업로드 스킵", i);
             }
-            itemImgService.saveItemImg(itemImg, itemImgFileList.get(i)); // 상품 이미지 정보 저장
+
+            itemImgService.saveItemImg(itemImg);
+            log.info("[이미지 {}] DB 저장 완료", i);
         }
+
+        log.info("=== [saveItem 완료] 상품ID={} ===", item.getId());
         return item.getId();
     }
 
@@ -82,12 +109,26 @@ public class ItemService {
 
         List<Long> itemImgIds = itemFormDto.getItemImgIds(); // 상품 이미지 아이디 리스트 조회
 
-        // 이미지 등록
+        // 이미지 업데이트
         for (int i = 0; i<itemImgFileList.size(); i++){
-            // 상품 이미지 업데이트 위해 상품 이미지 아이디, 파일 정보 파라미터로 전달
-            itemImgService.updateItemImg(itemImgIds.get(i), itemImgFileList.get(i));
-        }
+            if(!itemImgFileList.get(i).isEmpty()){
+                // 기존 이미지 파일이 있다면 R2에서 삭제
+                ItemImg savedItemImg = itemImgRepository.findById(itemImgIds.get(i))
+                        .orElseThrow(EntityNotFoundException::new);
+                if (savedItemImg.getImgUrl() != null && !savedItemImg.getImgUrl().isEmpty()) {
+                    r2StorageService.deleteFile(savedItemImg.getImgUrl());
+                }
 
+                // 새로운 이미지 R2에 업로드
+                String imgUrl = r2StorageService.uploadFile(itemImgFileList.get(i), "item_images");
+                String oriImgName = itemImgFileList.get(i).getOriginalFilename();
+                String imgName = UUID.randomUUID().toString() + oriImgName.substring(oriImgName.lastIndexOf("."));
+                savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
+
+                // 수정된 ItemImgService의 메서드 호출
+                itemImgService.updateItemImg(savedItemImg);
+            }
+        }
         return item.getId();
     }
 

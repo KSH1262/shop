@@ -7,6 +7,7 @@ import com.shop.shop.service.ItemService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ItemController {
@@ -38,26 +40,37 @@ public class ItemController {
 
     @PostMapping("/admin/item/new")
     public String itemNew(@Valid ItemFormDto itemFormDto, BindingResult bindingResult, Model model,
-                          @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList){
+                          @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList) {
 
-        if (bindingResult.hasErrors()){ // 상품 등록 시 필수 값이 없다면 상품 등록 페이지로 전환
+        log.info("=== [상품 등록 요청 감지] ===");
+        log.info("상품명: {}", itemFormDto.getItemNm());
+        log.info("가격: {}", itemFormDto.getPrice());
+        log.info("설명: {}", itemFormDto.getItemDetail());
+        log.info("이미지 파일 개수: {}", itemImgFileList != null ? itemImgFileList.size() : 0);
+
+        if (bindingResult.hasErrors()) {
+            log.warn("[유효성 검사 실패] 필수값 누락");
             return "item/itemForm";
         }
 
-        // 상품 등록 시 첫 번째 이미지가 없다면 에러 메시지와 함께 상품 등록 페이지로 전환, 필수 값임
-        if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){
-            model.addAttribute("errorMessage", "첫번째 상품 이미지는 필수 입력 값 입나다.");
+        if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null) {
+            log.warn("[첫 번째 이미지 없음] 필수 이미지 누락");
+            model.addAttribute("errorMessage", "첫번째 상품 이미지는 필수 입력 값입니다.");
             return "item/itemForm";
         }
 
         try {
-            itemService.saveItem(itemFormDto, itemImgFileList); // 상품 저장 로직 호출
-        } catch (Exception e){
+            log.info("[상품 저장 로직 실행]");
+            itemService.saveItem(itemFormDto, itemImgFileList);
+            log.info("[상품 저장 완료]");
+        } catch (Exception e) {
+            log.error("[상품 저장 중 예외 발생]", e);
             model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");
             return "item/itemForm";
         }
 
-        return "redirect:/"; // 상품 정상 등록되면 메인 페이지로
+        log.info("=== [상품 등록 완료 → 메인 페이지로 이동] ===");
+        return "redirect:/";
     }
 
     @GetMapping("/admin/item/{itemId}")

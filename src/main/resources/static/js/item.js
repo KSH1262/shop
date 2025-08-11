@@ -249,20 +249,24 @@ $(document).ready(function() {
 
 // itemForm.html
 $(document).ready(function(){
-    var errorMessage = $("#errorContainer").data("error-message");
-    if (errorMessage) {
-        alert(errorMessage);
+    var errorMessageElement = $("#errorContainer");
+    if (errorMessageElement.length) {
+        var errorMessage = errorMessageElement.data("error-message");
+        if (errorMessage) {
+            alert(errorMessage);
+        }
     }
+
+    console.log("폼 제출 이벤트 감지 등록");
     bindDomEvent();
 
     if ($('#itemIdHidden').length) {
-        var itemIdForForm = $('#itemIdHidden').val(); // 현재 상품의 ID 가져오기 (등록 시에는 비어있음)
+        var itemIdForForm = $('#itemIdHidden').val();
 
-        // 삭제 버튼 클릭 이벤트
+        // 1. 삭제 버튼 클릭 이벤트
         $('#deleteItemBtn').off('click').on('click', function(event) {
-            event.preventDefault(); // 버튼의 기본 동작 방지
+            event.preventDefault();
 
-            // 상품 ID가 없으면 (즉, 새 상품 등록 페이지이면) 삭제 불가
             if (!itemIdForForm) {
                 alert('삭제할 상품 ID가 없습니다.');
                 return;
@@ -273,14 +277,14 @@ $(document).ready(function(){
                 var header = $("meta[name='_csrf_header']").attr("content");
 
                 $.ajax({
-                    url: '/admin/item/' + itemIdForForm, // 삭제할 상품의 ID를 URL에 포함
-                    type: 'DELETE', // DELETE 메소드 사용
+                    url: '/admin/item/' + itemIdForForm,
+                    type: 'DELETE',
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function(result) {
                         alert(result);
-                        location.href = '/admin/items'; // 삭제 성공 시 상품 관리 페이지로 이동
+                        location.href = '/admin/items';
                     },
                     error: function(jqXHR, status, error) {
                         alert('상품 삭제에 실패했습니다: ' + jqXHR.responseText);
@@ -289,18 +293,51 @@ $(document).ready(function(){
             }
         });
     }
+
+    // 2. 폼 제출(저장/수정) 이벤트
+    // 이 부분이 삭제 버튼 이벤트와 동일한 레벨에 있어야 합니다.
+    $('form').on('submit', function(e) {
+        console.log("폼 제출 이벤트 감지됨. 서버로 전송합니다.");
+        e.preventDefault();  // 기본 submit 막음
+
+        console.log("AJAX로 상품 등록 시도중");
+
+        var formData = new FormData(this); // form의 모든 필드+파일 포함
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: $(this).attr('action'), // form에 설정한 action 사용
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success: function(result) {
+                alert("상품 등록 성공!");
+                location.href = '/admin/items'; // 등록 후 이동
+            },
+            error: function(jqXHR, status, error) {
+                alert("상품 등록 실패: " + jqXHR.responseText);
+            }
+        });
+    });
 });
+
+
 
 function bindDomEvent(){
     $(".custom-file-input").on("change", function(){
         var fileName = $(this).val().split("\\").pop();
         var fileExt = fileName.substring(fileName.lastIndexOf(".")+1);
 
-        // fileExt가 유효한 문자열인지 확인
         if(fileExt && fileExt.length > 0) {
             fileExt = fileExt.toLowerCase();
         } else {
-            // 확장자가 없거나 유효하지 않은 경우에 대한 처리 (예: 빈 문자열로 설정)
             fileExt = "";
         }
 
