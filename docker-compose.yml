@@ -29,8 +29,8 @@ services:
         condition: service_healthy
     environment:
 
-      SPRING_DATASOURCE_URL: ${DB_URL}
-      #SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      #SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
