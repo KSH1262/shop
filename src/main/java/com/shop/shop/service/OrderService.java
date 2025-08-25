@@ -84,9 +84,16 @@ public class OrderService {
         return true;
     }
 
-    public void cancelOrder(Long orderId){
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
-        order.cancelOrder(); // 변경 감지 후 update 쿼리 실행
+    public void cancelOrder(Long orderId, String email) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        // 권한 체크 (본인 주문만 취소 가능)
+        if (!validateOrder(orderId, email)) {
+            throw new IllegalStateException("주문 취소 권한이 없습니다.");
+        }
+
+        order.cancel(); // 엔티티 비즈니스 로직 호출 → 상태 변경 + 재고 복구
     }
 
     public Long orders(List<OrderDto> orderDtoList, String email){
