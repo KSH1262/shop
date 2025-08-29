@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>전체 상품 관리</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-4">
+    <h2>전체 상품 관리</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>상품번호</th>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>재고</th>
+            <th>상태</th>
+            <th>대표 이미지</th>
+            <th>등록자</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.itemNm}"></td>
+            <td th:text="${item.price}"></td>
+            <td th:text="${item.stockNumber}"></td>
+            <td th:text="${item.itemSellStatus}"></td>
+            <td>
+                <img th:if="${item.repImgUrl != null and !item.repImgUrl.isEmpty()}"
+                     th:src="${item.repImgUrl}"
+                     alt="상품 이미지" style="width:80px;height:auto;" />
+                <span th:if="${item.repImgUrl == null or item.repImgUrl.isEmpty()}">이미지 없음</span>
+            </td>
+            <td th:text="${item.createdBy}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

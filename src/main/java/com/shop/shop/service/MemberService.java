@@ -34,19 +34,14 @@ public class MemberService implements UserDetailsService { // MemberService 가 
     }
 
     @Override
-    // 로그인할 유저의 email을 전달 받음
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일의 회원을 찾을 수 없습니다: " + email));
 
-        if (member == null){
-            throw new UsernameNotFoundException(email);
-        }
-
-        return User.builder() // User 객체를 생성하기 위해 email, 비밀번호, role을 파라미터로 넘겨줌
+        return User.builder()
                 .username(member.getEmail())
                 .password(member.getPassword())
-                .roles(member.getRole().toString())
+                .roles(member.getRole().name()) // enum → 문자열
                 .build();
     }
 }

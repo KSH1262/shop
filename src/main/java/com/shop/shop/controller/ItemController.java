@@ -32,13 +32,13 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/admin/item/new")
+    @GetMapping("/seller/item/new")
     public String itemForm(Model model){
         model.addAttribute("itemFormDto", new ItemFormDto());
         return "item/itemForm";
     }
 
-    @PostMapping("/admin/item/new")
+    @PostMapping("/seller/item/new")
     public String itemNew(@Valid ItemFormDto itemFormDto, BindingResult bindingResult, Model model,
                           @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList) {
 
@@ -73,7 +73,7 @@ public class ItemController {
         return "redirect:/";
     }
 
-    @GetMapping("/admin/item/{itemId}")
+    @GetMapping("/seller/item/{itemId}")
     public String itemDtl(@PathVariable("itemId") Long itemId, Model model){
 
         try {
@@ -87,7 +87,7 @@ public class ItemController {
         return "item/itemForm";
     }
 
-    @PostMapping("/admin/item/{itemId}")
+    @PostMapping("/seller/item/{itemId}")
     public String itemUpdate(@Valid ItemFormDto itemFormDto, BindingResult bindingResult,
                              @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList, Model model,
                              Authentication authentication){
@@ -112,7 +112,7 @@ public class ItemController {
         return "redirect:/";
     }
 
-    @GetMapping({"/admin/items","/admin/items/{page}"})
+    @GetMapping({"/seller/items","/admin/items/{page}"})
     public String itemManage(ItemSearchDto itemSearchDto, @PathVariable("page")Optional<Integer> page, Model model,
                              Authentication authentication){
         // 현재 로그인한 사용자의 이메일 가져오기
@@ -149,9 +149,9 @@ public class ItemController {
         }
         return "item/itemDtl"; // 상품 상세 페이지 템플릿 이름
     }
-    @DeleteMapping("/admin/item/{itemId}")
+    @DeleteMapping("/seller/item/{itemId}")
     @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<String> deleteItem(@PathVariable("itemId") Long itemId,
                                              Authentication authentication) {
         try {

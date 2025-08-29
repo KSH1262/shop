@@ -43,8 +43,8 @@
               <label class="form-check-label" for="user">구매회원</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" th:field="*{role}" id="admin" value="ADMIN">
-              <label class="form-check-label" for="admin">판매회원</label>
+              <input class="form-check-input" type="radio" th:field="*{role}" id="seller" value="SELLER">
+              <label class="form-check-label" for="seller">판매회원</label>
             </div>
           </div>
           <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="fieldError mt-1 text-danger">Incorrect data</p>

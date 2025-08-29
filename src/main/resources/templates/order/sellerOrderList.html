@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>판매자 주문 내역</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-4">
+    <h2>내 상품 주문 내역</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>주문번호</th>
+            <th>구매자</th>
+            <th>주소</th> <!-- ✅ 구매자 주소 -->
+            <th>상품 이미지</th>
+            <th>상품명</th>
+            <th>수량</th>
+            <th>주문일</th>
+            <th>상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderId}"></td>
+            <td th:text="${order.buyerEmail}"></td>
+            <td th:text="${order.buyerAddress}"></td> <!-- ✅ 주소 출력 -->
+            <td>
+                <img th:src="${order.imgUrl}" alt="상품 이미지" style="width:100px; height:auto;"/>
+            </td>
+            <td th:text="${order.itemNm}"></td>
+            <td th:text="${order.count}"></td>
+            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${order.orderStatus}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>

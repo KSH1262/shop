@@ -10,6 +10,8 @@ import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "item")
@@ -42,6 +44,9 @@ public class Item extends BaseEntity{
     @ColumnDefault("false")
     @Column(nullable = false)
     private boolean is_deleted;
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ItemImg> itemImgList = new ArrayList<>();
 
     public boolean getIs_deleted(){
         return is_deleted;

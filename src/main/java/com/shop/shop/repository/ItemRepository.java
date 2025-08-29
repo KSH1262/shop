@@ -1,6 +1,7 @@
 package com.shop.shop.repository;
 
 import com.shop.shop.constant.ItemSellStatus;
+import com.shop.shop.dto.AdminItemDto;
 import com.shop.shop.entity.Item;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,5 +25,13 @@ public interface ItemRepository extends JpaRepository<Item, Long>, QuerydslPredi
     Page<Item> findByItemSellStatusAndItemNmAndIsDeletedFalse
             (@Param("itemSellStatus") ItemSellStatus itemSellStatus,
              @Param("searchQuery") String searchQuery, Pageable pageable);
+
+    @Query("select new com.shop.shop.dto.AdminItemDto(" +
+            "i.id, i.itemNm, i.price, i.stockNumber, i.itemSellStatus, " +
+            "coalesce(im.imgUrl, ''), i.createdBy) " +
+            "from Item i " +
+            "left join i.itemImgList im with im.repImgYn = 'Y' " +
+            "where i.is_deleted = false")
+    List<AdminItemDto> findAllItemDtos();
 
 }

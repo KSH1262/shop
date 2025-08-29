@@ -37,8 +37,9 @@ public class MemberController {
         try {
             Member member = Member.createMember(memberFormDto, passwordEncoder);
             memberService.saveMember(member);
-        } catch (IllegalStateException e){
-            model.addAttribute("errorMessage", e.getMessage()); // 중복 회원 가입 예외 발생시 에러 메시지
+        } catch (Exception e) {
+            e.printStackTrace(); // 로그에 예외 출력
+            model.addAttribute("errorMessage", e.getMessage());
             return "member/memberForm";
         }
 

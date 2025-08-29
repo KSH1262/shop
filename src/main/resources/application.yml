@@ -14,7 +14,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        default_schema: shop
+        #default_schema: shop
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 1000
