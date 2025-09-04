@@ -18,7 +18,7 @@
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">상품 등록</h2>
-                    <form role="form" method="post" enctype="multipart/form-data" th:object="${itemFormDto}">
+                    <form id="itemForm" role="form" method="post" enctype="multipart/form-data" th:object="${itemFormDto}">
 
                         <input type="hidden" id="itemIdHidden" th:field="*{id}">
 

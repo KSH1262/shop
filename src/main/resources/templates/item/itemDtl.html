@@ -88,7 +88,7 @@
 
         <div sec:authorize="isAuthenticated()" class="p-3 border rounded shadow-sm mb-4">
           <h5>리뷰 작성</h5>
-          <form id="reviewForm">
+          <form id="reviewForm" class="mb-3">
             <input type="hidden" id="reviewItemId" th:value="${itemFormDto.id}">
             <div class="mb-2">
               <label class="form-label">평점</label>
@@ -102,12 +102,16 @@
             </div>
             <div class="mb-2">
               <label class="form-label">내용</label>
-              <textarea id="comment" class="form-control" rows="3" placeholder="리뷰 내용을 입력해주세요."></textarea>
+              <textarea id="comment" class="form-control" rows="3"
+                        placeholder="리뷰 내용을 입력해주세요."></textarea>
             </div>
-            <button type="button" class="btn btn-primary mt-2 float-end" id="submitReviewBtn">리뷰 등록</button>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-primary mt-2" id="submitReviewBtn">리뷰 등록</button>
+            </div>
           </form>
           <div id="reviewError" class="text-danger mt-2"></div>
         </div>
+
         <div sec:authorize="isAnonymous()" class="p-3 text-center text-muted border rounded shadow-sm mb-4">
           리뷰를 작성하려면 <a th:href="@{/members/login}">로그인</a> 해주세요.
         </div>

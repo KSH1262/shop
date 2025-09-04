@@ -257,7 +257,6 @@ $(document).ready(function(){
         }
     }
 
-    console.log("폼 제출 이벤트 감지 등록");
     bindDomEvent();
 
     if ($('#itemIdHidden').length) {
@@ -296,11 +295,8 @@ $(document).ready(function(){
 
     // 2. 폼 제출(저장/수정) 이벤트
     // 이 부분이 삭제 버튼 이벤트와 동일한 레벨에 있어야 합니다.
-    $('form').on('submit', function(e) {
-        console.log("폼 제출 이벤트 감지됨. 서버로 전송합니다.");
+    $('#itemForm').on('submit', function(e) {
         e.preventDefault();  // 기본 submit 막음
-
-        console.log("AJAX로 상품 등록 시도중");
 
         var formData = new FormData(this); // form의 모든 필드+파일 포함
 

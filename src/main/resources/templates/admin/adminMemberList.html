@@ -10,12 +10,13 @@
     <h2>회원 목록</h2>
     <table class="table table-hover">
         <thead class="table-light">
-        <tr>
+        <tr>'#itemForm'
             <th>회원번호</th>
             <th>이름</th>
             <th>이메일</th>
             <th>주소</th>
             <th>권한</th>
+            <th>활성화여부</th>
         </tr>
         </thead>
         <tbody>
@@ -25,6 +26,14 @@
             <td th:text="${member.email}"></td>
             <td th:text="${member.address}"></td>
             <td th:text="${member.role}"></td>
+            <td>
+                <form th:action="@{'/admin/members/' + ${member.id} + '/toggle'}" method="post">
+                    <button type="submit"
+                            th:classappend="${member.isDeleted} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'">
+                        <span th:text="${member.isDeleted} ? '비활성화' : '활성화'"></span>
+                    </button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>

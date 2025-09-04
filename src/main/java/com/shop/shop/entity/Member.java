@@ -32,6 +32,17 @@ public class Member extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;  // 탈퇴 여부
+
+    public void deactivate() {
+        this.isDeleted = true;
+    }
+
+    public void activate() {
+        this.isDeleted = false; // 회원 복원
+    }
+
     public static Member createMember(MemberFormDto memberFormDto,
                                       PasswordEncoder passwordEncoder){ // member 엔티티 생성
         Member member = new Member();

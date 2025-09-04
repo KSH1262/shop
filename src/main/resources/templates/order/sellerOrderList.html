@@ -13,7 +13,7 @@
         <tr>
             <th>주문번호</th>
             <th>구매자</th>
-            <th>주소</th> <!-- ✅ 구매자 주소 -->
+            <th>주소</th> <!--  구매자 주소 -->
             <th>상품 이미지</th>
             <th>상품명</th>
             <th>수량</th>
@@ -25,7 +25,7 @@
         <tr th:each="order : ${orders}">
             <td th:text="${order.orderId}"></td>
             <td th:text="${order.buyerEmail}"></td>
-            <td th:text="${order.buyerAddress}"></td> <!-- ✅ 주소 출력 -->
+            <td th:text="${order.buyerAddress}"></td> <!--  주소 출력 -->
             <td>
                 <img th:src="${order.imgUrl}" alt="상품 이미지" style="width:100px; height:auto;"/>
             </td>

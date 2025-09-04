@@ -38,10 +38,26 @@ public class MemberService implements UserDetailsService { // MemberService 가 
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일의 회원을 찾을 수 없습니다: " + email));
 
+        // 정지된 회원이면 로그인 불가 처리
+        if (member.isDeleted()) {
+            throw new UsernameNotFoundException("정지된 계정입니다. 관리자에게 문의하세요.");
+        }
+
         return User.builder()
                 .username(member.getEmail())
                 .password(member.getPassword())
-                .roles(member.getRole().name()) // enum → 문자열
+                .roles(member.getRole().name())
                 .build();
+    }
+
+    @Transactional
+    public void toggleStatus(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        if (member.isDeleted()) {
+            member.activate();   // 정지 → 복원
+        } else {
+            member.deactivate(); // 정상 → 정지
+        }
     }
 }
