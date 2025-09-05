@@ -18,6 +18,7 @@
             <th>상태</th>
             <th>대표 이미지</th>
             <th>등록자</th>
+            <th>활성화여부</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +35,14 @@
                 <span th:if="${item.repImgUrl == null or item.repImgUrl.isEmpty()}">이미지 없음</span>
             </td>
             <td th:text="${item.createdBy}"></td>
+            <td>
+                <form th:action="@{'/admin/items/' + ${item.id} + '/toggle'}" method="post" style="display:inline">
+                    <button type="submit"
+                            th:classappend="${item.is_deleted} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'">
+                        <span th:text="${item.is_deleted} ? '활성화' : '비활성화'"></span>
+                    </button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
