@@ -7,6 +7,7 @@ import com.shop.shop.entity.Order;
 import com.shop.shop.repository.ItemRepository;
 import com.shop.shop.repository.MemberRepository;
 import com.shop.shop.repository.OrderRepository;
+import com.shop.shop.service.ItemService;
 import com.shop.shop.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ public class AdminController {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
     private final MemberService memberService;
+    private final ItemService itemService;
 
     // 전체 주문 내역 조회
     @GetMapping("/orders")
@@ -54,15 +56,16 @@ public class AdminController {
     // 전체 상품 관리
     @GetMapping("/items")
     public String allItems(Model model) {
-        List<AdminItemDto> items = itemRepository.findAllItemDtos();
+        // ✨ 변경: ItemService를 통해 관리자용 상품 목록 조회
+        List<AdminItemDto> items = itemService.getAllAdminItems();
         model.addAttribute("items", items);
         return "admin/adminItemList";
     }
 
     // 회원 상태 토글 (정지 <-> 복원)
-    @PostMapping("/members/{id}/toggle")
-    public String toggleMemberStatus(@PathVariable Long id) {
-        memberService.toggleStatus(id);
-        return "redirect:/admin/members";
+    @PostMapping("/items/{id}/toggle")
+    public String toggleItemStatus(@PathVariable Long id) {
+        itemService.toggleItemStatus(id);
+        return "redirect:/admin/items";
     }
 }

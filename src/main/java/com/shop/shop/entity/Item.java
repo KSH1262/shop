@@ -55,6 +55,14 @@ public class Item extends BaseEntity{
         this.is_deleted = is_deleted;
     }
 
+    public void deactivate() {
+        this.is_deleted = true;
+    }
+
+    public void activate() {
+        this.is_deleted = false;
+    }
+
     public void updateItem(ItemFormDto itemFormDto){
         this.itemNm = itemFormDto.getItemNm();
         this.price = itemFormDto.getPrice();

@@ -28,10 +28,9 @@ public interface ItemRepository extends JpaRepository<Item, Long>, QuerydslPredi
 
     @Query("select new com.shop.shop.dto.AdminItemDto(" +
             "i.id, i.itemNm, i.price, i.stockNumber, i.itemSellStatus, " +
-            "coalesce(im.imgUrl, ''), i.createdBy) " +
+            "coalesce(im.imgUrl, ''), i.createdBy, i.is_deleted) " +
             "from Item i " +
-            "left join i.itemImgList im with im.repImgYn = 'Y' " +
-            "where i.is_deleted = false")
+            "left join i.itemImgList im with im.repImgYn = 'Y'")
     List<AdminItemDto> findAllItemDtos();
 
 }

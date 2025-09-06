@@ -16,5 +16,5 @@ public class AdminItemDto {
     private ItemSellStatus itemSellStatus;
     private String repImgUrl;
     private String createdBy;
-
+    private boolean is_deleted;
 }

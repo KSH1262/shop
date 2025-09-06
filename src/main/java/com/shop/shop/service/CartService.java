@@ -39,6 +39,10 @@ public class CartService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 가진 회원을 찾을 수 없습니다.")); // 현재 로그인한 회원 엔티티 조회
 
+        if (item.getIs_deleted()) {
+            throw new IllegalStateException("삭제된 상품은 장바구니에 담을 수 없습니다.");
+        }
+
         Cart cart = cartRepository.findByMemberId(member.getId()); // 현재 로그인한 회원의 장바구니 엔티티 조회
         if (cart == null){ // 상품을 처음 장바구니에 담을 경우 해당 회원의 장바구니 엔티티 생성
             cart = Cart.createCart(member);

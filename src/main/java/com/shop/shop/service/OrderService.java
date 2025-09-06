@@ -36,6 +36,10 @@ public class OrderService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));; // 이메일 정보를 이용, 회원 정보 조회
 
+        if (item.getIs_deleted()) {
+            throw new IllegalStateException("삭제된 상품은 주문할 수 없습니다.");
+        }
+
         List<OrderItem> orderItemList = new ArrayList<>();
         OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount()); // 주문 상품 엔티티 생성
         orderItemList.add(orderItem);

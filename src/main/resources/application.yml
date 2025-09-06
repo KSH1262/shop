@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    #url: ${DB_LOCAL_URL}
+    url: ${DB_LOCAL_URL}
     #url: ${DB_URL}
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    #url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     #?createDatabaseIfNotExist=true
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -14,12 +14,12 @@ spring:
   jpa:
     properties:
       hibernate:
-        default_schema: shop
+        #default_schema: shop
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 1000
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   servlet:

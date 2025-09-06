@@ -1,9 +1,6 @@
 package com.shop.shop.service;
 
-import com.shop.shop.dto.ItemFormDto;
-import com.shop.shop.dto.ItemImgDto;
-import com.shop.shop.dto.ItemSearchDto;
-import com.shop.shop.dto.MainItemDto;
+import com.shop.shop.dto.*;
 import com.shop.shop.entity.Item;
 import com.shop.shop.entity.ItemImg;
 import com.shop.shop.repository.ItemImgRepository;
@@ -89,6 +86,11 @@ public class ItemService {
 
         // 상품 아이디를 통해 상품 엔티티 조회, 없으면 EntityNotFoundException 발생
         Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
+
+        if (item.getIs_deleted()) {
+            throw new EntityNotFoundException("요청하신 상품이 존재하지 않습니다.");
+        }
+
         ItemFormDto itemFormDto = ItemFormDto.of(item);
         itemFormDto.setItemImgDtoList(itemImgDtoList);
         return itemFormDto;
@@ -142,15 +144,32 @@ public class ItemService {
         return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminItemDto> getAllAdminItems() {
+        return itemRepository.findAllItemDtos();
+    }
+
     public void deleteItem(Long itemId, String currentUserEmail) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다. id: " + itemId));
 
-        if (!item.getCreatedBy().equals(currentUserEmail)) { // 현재 로그인한 사용자와 작성자가 다르면
-            throw new AccessDeniedException("작성자만 상품을 삭제할 수 있습니다."); // 접근 거부 예외 발생
+        // 작성자만 삭제 가능
+        if (!item.getCreatedBy().equals(currentUserEmail)) {
+            throw new AccessDeniedException("작성자만 상품을 삭제할 수 있습니다.");
         }
 
-        // is_deleted 값을 true로 변경하여 소프트 삭제를 수행합니다.
-        item.setIs_deleted(true);
+        item.deactivate();
+    }
+
+    public void toggleItemStatus(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다. id: " + itemId));
+
+        if (item.getIs_deleted()) {
+            item.activate();
+        } else {
+            item.deactivate();
+        }
+        // @Transactional 어노테이션 덕분에 save()를 명시적으로 호출하지 않아도 됨
     }
 }
