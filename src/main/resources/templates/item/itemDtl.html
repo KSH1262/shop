@@ -60,8 +60,8 @@
           </div>
 
           <div th:if="${item.itemSellStatus.toString() == 'SELL'}" class="d-grid gap-2">
-            <button type="button" class="btn btn-outline-primary btn-lg" onclick="addCart()">장바구니 담기</button>
-            <button type="button" class="btn btn-primary btn-lg" onclick="order()">주문하기</button>
+            <button type="button" class="btn btn-outline-primary btn-lg" onclick="addCart()" id="addCartBtn">장바구니 담기</button>
+            <button type="button" class="btn btn-primary btn-lg" onclick="order()" id="orderBtn">주문하기</button>
           </div>
           <div th:unless="${item.itemSellStatus.toString() == 'SELL'}" class="d-grid gap-2">
             <button type="button" class="btn btn-danger btn-lg" disabled>품절</button>
