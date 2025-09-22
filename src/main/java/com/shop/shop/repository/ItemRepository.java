@@ -11,6 +11,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ItemRepository extends JpaRepository<Item, Long>, QuerydslPredicateExecutor<Item>, ItemRepositoryCustom {
     List<Item> findByItemNm(String itemNm);
@@ -32,5 +34,7 @@ public interface ItemRepository extends JpaRepository<Item, Long>, QuerydslPredi
             "from Item i " +
             "left join i.itemImgList im with im.repImgYn = 'Y'")
     List<AdminItemDto> findAllItemDtos();
+
+    Optional<Item> findByUuid(UUID uuid);
 
 }

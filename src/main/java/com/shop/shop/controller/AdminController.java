@@ -68,4 +68,10 @@ public class AdminController {
         itemService.toggleItemStatus(id);
         return "redirect:/admin/items";
     }
+
+    @PostMapping("/members/{id}/toggle")
+    public String toggleMemberStatus(@PathVariable Long id) {
+        memberService.toggleMemberStatus(id);
+        return "redirect:/admin/members";
+    }
 }

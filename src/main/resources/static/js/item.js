@@ -263,14 +263,14 @@ $(document).ready(function(){
 
     bindDomEvent();
 
-    if ($('#itemIdHidden').length) {
-        var itemIdForForm = $('#itemIdHidden').val();
+    if ($('#itemUuidHidden').length) {
+        var itemIdForForm = $('#itemUuidHidden').val();
 
         // 1. 삭제 버튼 클릭 이벤트
         $('#deleteItemBtn').off('click').on('click', function(event) {
             event.preventDefault();
 
-            if (!itemIdForForm) {
+            if (!itemUuidForForm) {
                 alert('삭제할 상품 ID가 없습니다.');
                 return;
             }
@@ -280,14 +280,14 @@ $(document).ready(function(){
                 var header = $("meta[name='_csrf_header']").attr("content");
 
                 $.ajax({
-                    url: '/admin/item/' + itemIdForForm,
+                    url: '/admin/item/' + itemUuidForForm,
                     type: 'DELETE',
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function(result) {
                         alert(result);
-                        location.href = '/admin/items';
+                        location.href = '/';
                     },
                     error: function(jqXHR, status, error) {
                         alert('상품 삭제에 실패했습니다: ' + jqXHR.responseText);
@@ -319,7 +319,7 @@ $(document).ready(function(){
             },
             success: function(result) {
                 alert("상품 등록 성공!");
-                location.href = '/admin/items'; // 등록 후 이동
+                location.href = '/'; // 등록 후 이동
             },
             error: function(jqXHR, status, error) {
                 alert("상품 등록 실패: " + jqXHR.responseText);
@@ -362,8 +362,9 @@ function page(page){
     var searchSellStatus = $("#searchSellStatus").val();
     var searchBy = $("#searchBy").val();
     var searchQuery = $("#searchQuery").val();
+    var baseUrl = window.location.pathname.startsWith("/seller") ? "/seller/items/" : "/admin/items/";
 
-    location.href="/admin/items/" + page + "?searchDateType=" + searchDateType
+    location.href= baseUrl + page + "?searchDateType=" + searchDateType
     + "&searchSellStatus=" + searchSellStatus
     + "&searchBy=" + searchBy
     + "&searchQuery=" + searchQuery;

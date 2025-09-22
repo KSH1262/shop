@@ -8,10 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "item")
@@ -24,6 +27,10 @@ public class Item extends BaseEntity{
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @UuidGenerator
+    @Column(name = "item_uuid", columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID uuid;
 
     @Column(nullable = false, length = 50)
     private String itemNm;
@@ -47,6 +54,10 @@ public class Item extends BaseEntity{
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ItemImg> itemImgList = new ArrayList<>();
+
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public boolean getIs_deleted(){
         return is_deleted;
@@ -72,16 +83,14 @@ public class Item extends BaseEntity{
     }
 
     public void removeStock(int stockNumber){
-        int restStock = this.stockNumber - stockNumber; // 상품 재고 수량에서 주문 후 남은 재고 수량
+        int restStock = this.stockNumber - stockNumber;
         if (restStock < 0) {
-            // 상품 재고가 주문 수량보다 작을 경우 재고 부족 예외 발생
             throw new OutOfStockException("상품의 재고가 부족 합니다. (현재 재고 수량: " + this.stockNumber + ")");
         }
-        this.stockNumber = restStock; // 주문 후 남은 재고 수량을 상품의 현재 재고 값으로 할당
+        this.stockNumber = restStock;
     }
 
-    public void addStock(int stockNumber){ // 상품 재고 증가
+    public void addStock(int stockNumber){
         this.stockNumber += stockNumber;
     }
-
 }

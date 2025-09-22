@@ -32,33 +32,24 @@ public class ItemService {
 
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception {
 
-        log.info("=== [saveItem 시작] ===");
-        log.info("상품명: {}", itemFormDto.getItemNm());
-        log.info("이미지 파일 개수: {}", itemImgFileList != null ? itemImgFileList.size() : 0);
-
         // 1. 상품 등록
         Item item = itemFormDto.createItem();
         itemRepository.save(item);
-        log.info("[상품 DB 저장 완료] 상품ID={}", item.getId());
 
         // 2. 이미지 등록
         for (int i = 0; i < itemImgFileList.size(); i++) {
             MultipartFile file = itemImgFileList.get(i);
-            log.info("[이미지 {}] 원본 파일명: {}, 비어있는지 여부: {}", i, file.getOriginalFilename(), file.isEmpty());
 
             ItemImg itemImg = new ItemImg();
             itemImg.setItem(item);
             itemImg.setRepImgYn(i == 0 ? "Y" : "N");
 
             if (!file.isEmpty()) {
-                log.info("[이미지 {}] R2 업로드 시도", i);
                 String imgUrl = r2StorageService.uploadFile(file, "item_images");
-                log.info("[이미지 {}] 업로드 완료 → URL: {}", i, imgUrl);
 
                 String oriImgName = file.getOriginalFilename();
                 String imgName = UUID.randomUUID().toString() +
                         oriImgName.substring(oriImgName.lastIndexOf("."));
-                log.info("[이미지 {}] 저장용 파일명: {}", i, imgName);
 
                 itemImg.updateItemImg(oriImgName, imgName, imgUrl);
             } else {
@@ -66,10 +57,8 @@ public class ItemService {
             }
 
             itemImgService.saveItemImg(itemImg);
-            log.info("[이미지 {}] DB 저장 완료", i);
         }
 
-        log.info("=== [saveItem 완료] 상품ID={} ===", item.getId());
         return item.getId();
     }
 
@@ -96,38 +85,55 @@ public class ItemService {
         return itemFormDto;
     }
 
-    public Long updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList, String currentUserEmail) throws Exception{
+    @Transactional(readOnly = true)
+    public ItemFormDto getItemDtlByUuid(UUID uuid, String currentUserEmail) {
+        Item item = itemRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 상품입니다."));
 
-        // 상품 수정
-        // 상품 등록 화면으로부터 전달 받은 상품 아이디 이용 상품 엔티티 조회
-        Item item = itemRepository.findById(itemFormDto.getId())
-                .orElseThrow(EntityNotFoundException::new);
-
-        if (!item.getCreatedBy().equals(currentUserEmail)) { // 현재 로그인한 사용자와 작성자가 다르면
-            throw new AccessDeniedException("작성자만 상품을 수정할 수 있습니다."); // 접근 거부 예외 발생
+        if (item.getIs_deleted()) {
+            throw new EntityNotFoundException("요청하신 상품이 존재하지 않습니다.");
         }
 
-        item.updateItem(itemFormDto); // 전달 받은 ItemFormDto 를 통해 상품 엔티티 업데이트
+        List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(item.getId());
+        List<ItemImgDto> itemImgDtoList = new ArrayList<>();
+        for (ItemImg itemImg : itemImgList){
+            ItemImgDto itemImgDto = ItemImgDto.of(itemImg);
+            itemImgDtoList.add(itemImgDto);
+        }
 
-        List<Long> itemImgIds = itemFormDto.getItemImgIds(); // 상품 이미지 아이디 리스트 조회
+        ItemFormDto itemFormDto = ItemFormDto.of(item);
+        itemFormDto.setItemImgDtoList(itemImgDtoList);
+        return itemFormDto;
+    }
 
-        // 이미지 업데이트
+    public Long updateItemByUuid(UUID uuid, ItemFormDto itemFormDto,
+                                 List<MultipartFile> itemImgFileList, String currentUserEmail) throws Exception {
+
+        Item item = itemRepository.findByUuid(uuid)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (!item.getCreatedBy().equals(currentUserEmail)) {
+            throw new AccessDeniedException("작성자만 상품을 수정할 수 있습니다.");
+        }
+
+        item.updateItem(itemFormDto);
+
+        List<Long> itemImgIds = itemFormDto.getItemImgIds();
+
         for (int i = 0; i<itemImgFileList.size(); i++){
             if(!itemImgFileList.get(i).isEmpty()){
-                // 기존 이미지 파일이 있다면 R2에서 삭제
                 ItemImg savedItemImg = itemImgRepository.findById(itemImgIds.get(i))
                         .orElseThrow(EntityNotFoundException::new);
+
                 if (savedItemImg.getImgUrl() != null && !savedItemImg.getImgUrl().isEmpty()) {
                     r2StorageService.deleteFile(savedItemImg.getImgUrl());
                 }
 
-                // 새로운 이미지 R2에 업로드
                 String imgUrl = r2StorageService.uploadFile(itemImgFileList.get(i), "item_images");
                 String oriImgName = itemImgFileList.get(i).getOriginalFilename();
                 String imgName = UUID.randomUUID().toString() + oriImgName.substring(oriImgName.lastIndexOf("."));
                 savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
 
-                // 수정된 ItemImgService의 메서드 호출
                 itemImgService.updateItemImg(savedItemImg);
             }
         }
@@ -140,6 +146,11 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Item> getSellerItemPage(ItemSearchDto itemSearchDto, Pageable pageable, String currentUserEmail) {
+        return itemRepository.getSellerItemPage(itemSearchDto, pageable, currentUserEmail);
+    }
+
+    @Transactional(readOnly = true)
     public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
         return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
@@ -149,16 +160,15 @@ public class ItemService {
         return itemRepository.findAllItemDtos();
     }
 
-    public void deleteItem(Long itemId, String currentUserEmail) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다. id: " + itemId));
+    public void deleteItemByUuid(UUID uuid, String currentUserEmail) {
+        Item item = itemRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 상품입니다."));
 
-        // 작성자만 삭제 가능
         if (!item.getCreatedBy().equals(currentUserEmail)) {
             throw new AccessDeniedException("작성자만 상품을 삭제할 수 있습니다.");
         }
 
-        item.deactivate();
+        itemRepository.delete(item);
     }
 
     public void toggleItemStatus(Long itemId) {

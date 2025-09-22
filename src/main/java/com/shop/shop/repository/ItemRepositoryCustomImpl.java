@@ -109,7 +109,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                                 item.itemNm,
                                 item.itemDetail,
                                 itemImg.imgUrl,
-                                item.price)
+                                item.price,
+                                item.uuid)
                 )
                 .from(itemImg)
                 .join(itemImg.item, item)
@@ -130,6 +131,31 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 .where(itemNmLike(itemSearchDto.getSearchQuery()))
                 .fetchOne()
                 ;
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public Page<Item> getSellerItemPage(ItemSearchDto itemSearchDto, Pageable pageable, String currentUserEmail) {
+        QItem item = QItem.item;
+
+        List<Item> content = queryFactory
+                .selectFrom(item)
+                .where(item.is_deleted.eq(false)
+                        .and(item.createdBy.eq(currentUserEmail))
+                        .and(itemNmLike(itemSearchDto.getSearchQuery())))
+                .orderBy(item.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = queryFactory
+                .select(Wildcard.count)
+                .from(item)
+                .where(item.is_deleted.eq(false)
+                        .and(item.createdBy.eq(currentUserEmail))
+                        .and(itemNmLike(itemSearchDto.getSearchQuery())))
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, total);
     }

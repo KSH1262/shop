@@ -10,12 +10,14 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class ItemFormDto {
 
     private Long id;
+    private UUID uuid;
 
     @NotBlank(message = "상품명은 필수 입력 입니다.")
     private String itemNm;
@@ -31,9 +33,9 @@ public class ItemFormDto {
 
     private ItemSellStatus itemSellStatus;
 
-    private List<ItemImgDto> itemImgDtoList = new ArrayList<>(); // 저장 후 수정 시 상품 이미지 정보 저장
+    private List<ItemImgDto> itemImgDtoList = new ArrayList<>();
 
-    private List<Long> itemImgIds = new ArrayList<>(); // 상품 이미지 아이디 저장
+    private List<Long> itemImgIds = new ArrayList<>();
 
     private static ModelMapper modelMapper = new ModelMapper();
 
@@ -44,5 +46,4 @@ public class ItemFormDto {
     public static ItemFormDto of(Item item){
         return modelMapper.map(item, ItemFormDto.class);
     }
-
 }

@@ -17,6 +17,7 @@
             <th>주소</th>
             <th>권한</th>
             <th>활성화여부</th>
+            <th>관리</th>
         </tr>
         </thead>
         <tbody>
@@ -26,14 +27,14 @@
             <td th:text="${member.email}"></td>
             <td th:text="${member.address}"></td>
             <td th:text="${member.role}"></td>
-            <td>
-                <form th:action="@{'/admin/members/' + ${member.id} + '/toggle'}" method="post">
-                    <button type="submit"
-                            th:classappend="${member.isDeleted} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'">
-                        <span th:text="${member.isDeleted} ? '비활성화' : '활성화'"></span>
-                    </button>
-                </form>
-            </td>
+
+            <td th:text="${member.isDeleted} ? '비활성' : '활성'"></td> <td>
+            <form th:action="@{'/admin/members/' + ${member.id} + '/toggle'}" method="post">
+                <button type="submit"
+                        th:classappend="${member.isDeleted} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'">
+                    <span th:text="${member.isDeleted} ? '복원' : '중지'"></span>
+                </button>
+            </form>
         </tr>
         </tbody>
     </table>

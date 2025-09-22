@@ -51,7 +51,7 @@ public class MemberService implements UserDetailsService { // MemberService 가 
     }
 
     @Transactional
-    public void toggleStatus(Long memberId) {
+    public void toggleMemberStatus(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
         if (member.isDeleted()) {
