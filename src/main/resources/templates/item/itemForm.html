@@ -6,6 +6,9 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
     <th:block layout:fragment="css">
         <link rel="stylesheet" th:href="@{/css/item.css}">
     </th:block>
@@ -20,6 +23,7 @@
                     <h2 class="card-title text-center mb-4">상품 등록</h2>
                     <form id="itemForm" role="form" method="post" enctype="multipart/form-data" th:object="${itemFormDto}">
 
+                        <input type="hidden" name="idempotencyToken" th:value="${idempotencyToken}">
                         <input type="hidden" id="itemIdHidden" th:field="*{id}">
 
                         <div class="mb-3">

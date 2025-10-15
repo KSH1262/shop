@@ -5,6 +5,7 @@ import com.shop.shop.dto.ItemSearchDto;
 import com.shop.shop.entity.Item;
 import com.shop.shop.service.ItemService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Controller
@@ -32,16 +34,26 @@ import java.util.UUID;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ConcurrentHashMap<String, Boolean> idempotencyTokenCache;
 
     @GetMapping("/seller/item/new")
-    public String itemForm(Model model){
+    public String itemForm(Model model, HttpServletResponse response){
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxy 캐시 방지
+
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("X-Frame-Options", "DENY");
+
         model.addAttribute("itemFormDto", new ItemFormDto());
+        model.addAttribute("idempotencyToken", UUID.randomUUID().toString());
         return "item/itemForm";
     }
 
     @PostMapping("/seller/item/new")
     public String itemNew(@Valid ItemFormDto itemFormDto, BindingResult bindingResult, Model model,
-                          @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList) {
+                          @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList,
+                          @RequestParam("idempotencyToken") String idempotencyToken) {
 
         if (bindingResult.hasErrors()) {
             return "item/itemForm";
@@ -52,9 +64,16 @@ public class ItemController {
             return "item/itemForm";
         }
 
+        if (idempotencyTokenCache.putIfAbsent(idempotencyToken, Boolean.TRUE) != null) {
+            log.warn("중복 요청 감지 (상품 등록): {}", idempotencyToken);
+            model.addAttribute("errorMessage", "이미 처리된 요청입니다. 다시 시도하려면 새로고침 해주세요.");
+            return "item/itemForm";
+        }
+
         try {
             itemService.saveItem(itemFormDto, itemImgFileList);
         } catch (Exception e) {
+            idempotencyTokenCache.remove(idempotencyToken);
             log.error("[상품 저장 중 예외 발생]", e);
             model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");
             return "item/itemForm";
@@ -151,6 +170,7 @@ public class ItemController {
         } catch (EntityNotFoundException e) {
             model.addAttribute("errorMessage", "존재하지 않는 상품입니다.");
             model.addAttribute("itemFormDto", new ItemFormDto());
+            model.addAttribute("idempotencyToken", UUID.randomUUID().toString());
             return "item/itemNotFound";
         }
         return "item/itemDtl";
