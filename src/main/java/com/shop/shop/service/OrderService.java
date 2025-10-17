@@ -32,7 +32,7 @@ public class OrderService {
 
     public Long order(OrderDto orderDto, String email){
 
-        Item item = itemRepository.findById(orderDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 주문할 상품 조회
+        Item item = itemRepository.findByUuid(orderDto.getItemUuid()).orElseThrow(EntityNotFoundException::new); // 주문할 상품 조회
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("해당 이메일의 회원을 찾을 수 없습니다."));; // 이메일 정보를 이용, 회원 정보 조회
 
@@ -107,7 +107,7 @@ public class OrderService {
         List<OrderItem> orderItemList = new ArrayList<>();
 
         for (OrderDto orderDto : orderDtoList){ // 주문할 상품 리스트 생성
-            Item item = itemRepository.findById(orderDto.getItemId()).orElseThrow(EntityNotFoundException::new);
+            Item item = itemRepository.findByUuid(orderDto.getItemUuid()).orElseThrow(EntityNotFoundException::new);
 
             OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount());
             orderItemList.add(orderItem);

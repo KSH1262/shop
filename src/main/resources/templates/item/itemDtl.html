@@ -22,7 +22,7 @@
 <body>
 <div layout:fragment="content" class="container mt-4">
 
-  <input type="hidden" id="itemId" th:value="${item.uuid}">
+  <input type="hidden" id="itemUuid" th:value="${item.uuid}">
 
   <div class="row justify-content-center">
     <div class="col-lg-8 col-md-10">
@@ -89,7 +89,7 @@
         <div sec:authorize="isAuthenticated()" class="p-3 border rounded shadow-sm mb-4">
           <h5>리뷰 작성</h5>
           <form id="reviewForm" class="mb-3">
-            <input type="hidden" id="reviewItemId" th:value="${itemFormDto.id}">
+            <input type="hidden" id="reviewItemUuid" th:value="${item.uuid}">
             <div class="mb-2">
               <label class="form-label">평점</label>
               <select id="rating" class="form-control">

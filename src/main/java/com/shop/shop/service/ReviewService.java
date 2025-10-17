@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,14 +26,14 @@ public class ReviewService {
     private final ItemRepository itemRepository; // 상품 정보 필요
 
     // 리뷰 등록
-    public Long saveReview(Long itemId, String email, ReviewDto reviewDto) {
+    public UUID saveReview(UUID itemUuid, String email, ReviewDto reviewDto) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findByUuid(itemUuid)
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
         // 이미 리뷰를 작성했는지 확인 (선택 사항: 1인 1리뷰 제한)
-        Review existingReview = reviewRepository.findByMemberIdAndItemId(member.getId(), itemId);
+        Review existingReview = reviewRepository.findByMemberIdAndItemUuid(member.getId(), itemUuid);
         if (existingReview != null) {
             throw new IllegalStateException("이미 해당 상품에 대한 리뷰를 작성하셨습니다.");
         }
@@ -40,13 +41,13 @@ public class ReviewService {
         Review review = Review.createReview(member, item, reviewDto.getRating(), reviewDto.getComment());
         reviewRepository.save(review);
 
-        return review.getId();
+        return review.getUuid();
     }
 
     // 특정 상품의 리뷰 목록 조회
     @Transactional(readOnly = true)
-    public List<ReviewDto> getReviewsByItemId(Long itemId) {
-        List<Review> reviews = reviewRepository.findByItemIdOrderByIdDesc(itemId);
+    public List<ReviewDto> getReviewsByItemId(UUID itemUuid) {
+        List<Review> reviews = reviewRepository.findByItemUuidOrderByIdDesc(itemUuid);
         return reviews.stream()
                 .map(ReviewDto::of)
                 .collect(Collectors.toList());

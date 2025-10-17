@@ -21,7 +21,7 @@ function order(){
 
     var url = "/order";
     var paramData = {
-        itemId : $("#itemId").val(),
+        itemUuid : $("#itemUuid").val(),
         count : $("#count").val()
     };
 
@@ -63,7 +63,7 @@ function addCart(){
 
     var url = "/cart";
     var paramData = {
-        itemId : $("#itemId").val(),
+        itemUuid : $("#itemUuid").val(),
         count : $("#count").val()
     };
 
@@ -156,17 +156,17 @@ function updateDeleteButtonsVisibility() {
 }
 
 $(document).ready(function() {
-    if ($('#reviewItemId').length) {
-        var itemIdForReviews = $('#reviewItemId').val(); // itemIdForReviews 변수를 사용합니다.
+    if ($('#reviewItemUuid').length) {
+        var itemUuidForReviews = $('#reviewItemUuid').val();
 
-        if (itemIdForReviews && !isNaN(itemIdForReviews)) {
-            loadReviews(itemIdForReviews); // loadReviews 호출 시 itemIdForReviews 전달
+        if (itemUuidForReviews && itemUuidForReviews.trim() !== "") {
+            loadReviews(itemUuidForReviews); // UUID로 리뷰 불러오기
         } else {
-            // 상품 상세 페이지이지만 itemId가 없는 경우 (예외 상황 또는 URL 조작 등)
             $('#reviewList').html('<p class="text-danger text-center">리뷰를 불러올 상품 정보가 올바르지 않습니다.</p>');
-            $('#reviewForm').hide(); // 리뷰 입력 폼 숨기기 (상품 ID가 유효하지 않을 경우)
+            $('#reviewForm').hide();
         }
 
+        // 리뷰 등록 버튼 클릭
         $('#submitReviewBtn').off('click').on('click', function(event) {
             event.preventDefault();
 
@@ -180,21 +180,20 @@ $(document).ready(function() {
 
             if (!comment.trim()) {
                 $('#reviewError').text('리뷰 내용을 입력해주세요.');
-                $submitBtn.prop('disabled', false); // 에러 시 버튼 다시 활성화
+                $submitBtn.prop('disabled', false);
                 return;
             } else {
                 $('#reviewError').text('');
             }
 
-            // itemIdForReviews가 유효한지 다시 한번 확인
-            if (!itemIdForReviews || isNaN(itemIdForReviews)) {
-                 alert('유효한 상품 ID가 없어 리뷰를 등록할 수 없습니다.');
-                 $submitBtn.prop('disabled', false);
-                 return;
+            if (!itemUuidForReviews || itemUuidForReviews.trim() === "") {
+                alert('유효한 상품 UUID가 없어 리뷰를 등록할 수 없습니다.');
+                $submitBtn.prop('disabled', false);
+                return;
             }
 
             $.ajax({
-                url: '/review/' + itemIdForReviews, // ★★★ itemIdForReviews 사용
+                url: '/review/' + itemUuidForReviews, // UUID 기반으로 변경
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ rating: rating, comment: comment }),
@@ -203,27 +202,26 @@ $(document).ready(function() {
                 },
                 success: function(result) {
                     alert(result);
-                    $('#comment').val(''); // 입력 필드 초기화
-                    loadReviews(itemIdForReviews); // ★★★ itemIdForReviews 사용
+                    $('#comment').val('');
+                    loadReviews(itemUuidForReviews);
                 },
-                error: function(jqXHR, status, error) {
-                    if (jqXHR.status == '400') {
-                        alert(jqXHR.responseText);
-                    } else if (jqXHR.status == '409') {
+                error: function(jqXHR) {
+                    if (jqXHR.status == 400 || jqXHR.status == 409) {
                         alert(jqXHR.responseText);
                     } else {
                         alert('리뷰 등록에 실패했습니다: ' + jqXHR.responseText);
                     }
                 },
                 complete: function() {
-                    $submitBtn.prop('disabled', false); // 버튼 다시 활성화
+                    $submitBtn.prop('disabled', false);
                 }
             });
         });
 
-        // 리뷰 삭제 버튼 클릭 이벤트
+        // 리뷰 삭제 버튼
         $(document).off('click', '.delete-review-btn').on('click', '.delete-review-btn', function(event) {
             event.preventDefault();
+
             if (confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
                 var reviewId = $(this).data('review-id');
                 var token = $("meta[name='_csrf']").attr("content");
@@ -237,9 +235,9 @@ $(document).ready(function() {
                     },
                     success: function(result) {
                         alert(result);
-                        loadReviews(itemIdForReviews); // ★★★ itemIdForReviews 사용
+                        loadReviews(itemUuidForReviews);
                     },
-                    error: function(jqXHR, status, error) {
+                    error: function(jqXHR) {
                         alert('리뷰 삭제에 실패했습니다: ' + jqXHR.responseText);
                     }
                 });

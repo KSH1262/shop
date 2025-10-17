@@ -35,6 +35,8 @@ public class MemberController {
         }
 
         try {
+            memberFormDto.mergeAddress();
+
             Member member = Member.createMember(memberFormDto, passwordEncoder);
             memberService.saveMember(member);
         } catch (Exception e) {
