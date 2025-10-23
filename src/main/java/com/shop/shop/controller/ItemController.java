@@ -101,29 +101,34 @@ public class ItemController {
     }
 
     @PostMapping("/seller/item/{uuid}")
-    public String itemUpdate(@Valid ItemFormDto itemFormDto, BindingResult bindingResult,
-                             @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList, Model model,
+    public String itemUpdate(@Valid ItemFormDto itemFormDto,
+                             BindingResult bindingResult,
+                             @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList,
+                             Model model,
                              Authentication authentication,
-                             @PathVariable("uuid") UUID uuid){
+                             @PathVariable("uuid") UUID uuid) {
 
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             return "item/itemForm";
         }
 
-        if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){
-            model.addAttribute("errorMessage", "첫번재 상품 이미지는 필수 입력 값 입니다.");
+        boolean isCreate = (itemFormDto.getId() == null);
+
+        if (isCreate && (itemImgFileList == null || itemImgFileList.isEmpty() || itemImgFileList.get(0).isEmpty())) {
+            model.addAttribute("errorMessage", "첫 번째 상품 이미지는 필수 입력 값입니다.");
             return "item/itemForm";
         }
 
         try {
             String currentUserEmail = authentication.getName();
             itemService.updateItemByUuid(uuid, itemFormDto, itemImgFileList, currentUserEmail);
-        } catch (Exception e){
-            model.addAttribute("errorMessage", "상품 수정 중 에러가 발생하였습니다.");
-            return  "item/itemForm";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "상품 수정 중 오류가 발생했습니다.");
+            return "item/itemForm";
         }
 
-        return "redirect:/";
+        return "redirect:/seller/items"; // 수정 완료 후 판매자 상품 목록으로 이동
     }
 
     @GetMapping({"/seller/items","/seller/items/{page}"})

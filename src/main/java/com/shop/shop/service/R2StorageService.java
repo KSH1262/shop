@@ -85,11 +85,11 @@ public class R2StorageService {
     }
 
     public void deleteFile(String fileUrl) {
-        String prefix = endpoint + "/" + bucketName + "/";
+        String prefix = publicUrl + "/";
         if (!fileUrl.startsWith(prefix)) {
-            // 안전장치: URL 형식 예상과 다르면 바로 처리하지 않음
             throw new IllegalArgumentException("잘못된 파일 URL입니다.");
         }
+
         String key = fileUrl.substring(prefix.length());
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()

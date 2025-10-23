@@ -106,6 +106,7 @@ public class ItemService {
         return itemFormDto;
     }
 
+    @Transactional
     public Long updateItemByUuid(UUID uuid, ItemFormDto itemFormDto,
                                  List<MultipartFile> itemImgFileList, String currentUserEmail) throws Exception {
 
@@ -116,29 +117,51 @@ public class ItemService {
             throw new AccessDeniedException("작성자만 상품을 수정할 수 있습니다.");
         }
 
+        // 상품 정보 업데이트
         item.updateItem(itemFormDto);
 
         List<Long> itemImgIds = itemFormDto.getItemImgIds();
-
-        for (int i = 0; i<itemImgFileList.size(); i++){
-            if(!itemImgFileList.get(i).isEmpty()){
-                ItemImg savedItemImg = itemImgRepository.findById(itemImgIds.get(i))
-                        .orElseThrow(EntityNotFoundException::new);
-
-                if (savedItemImg.getImgUrl() != null && !savedItemImg.getImgUrl().isEmpty()) {
-                    r2StorageService.deleteFile(savedItemImg.getImgUrl());
-                }
-
-                String imgUrl = r2StorageService.uploadFile(itemImgFileList.get(i), "item_images");
-                String oriImgName = itemImgFileList.get(i).getOriginalFilename();
-                String imgName = UUID.randomUUID().toString() + oriImgName.substring(oriImgName.lastIndexOf("."));
-                savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
-
-                itemImgService.updateItemImg(savedItemImg);
-            }
+        if (itemImgIds == null || itemImgIds.isEmpty()) {
+            return item.getId();
         }
+
+        for (int i = 0; i < itemImgIds.size(); i++) {
+            MultipartFile file = (itemImgFileList != null && itemImgFileList.size() > i)
+                    ? itemImgFileList.get(i) : null;
+
+            // 파일이 없으면 스킵 (기존 이미지 유지)
+            if (file == null || file.isEmpty()) continue;
+
+            ItemImg savedItemImg = itemImgRepository.findById(itemImgIds.get(i))
+                    .orElseThrow(EntityNotFoundException::new);
+
+            // 새 파일 업로드
+            String newImgUrl = r2StorageService.uploadFile(file, "item_images");
+            String oriImgName = file.getOriginalFilename();
+            String imgName = UUID.randomUUID().toString() +
+                    oriImgName.substring(oriImgName.lastIndexOf("."));
+
+            // 기존 URL은 나중에 삭제
+            String oldImgUrl = savedItemImg.getImgUrl();
+
+            savedItemImg.updateItemImg(oriImgName, imgName, newImgUrl);
+            itemImgRepository.saveAndFlush(savedItemImg);
+
+            // 기존 이미지 삭제 (DB 반영 후)
+            if (oldImgUrl != null && !oldImgUrl.isEmpty()) {
+                try {
+                    r2StorageService.deleteFile(oldImgUrl);
+                } catch (Exception e) {
+                    log.warn("기존 이미지 삭제 실패: {}", e.getMessage());
+                }
+            }
+
+            log.info("이미지 수정 완료: itemImgId={}, newUrl={}", savedItemImg.getId(), newImgUrl);
+        }
+
         return item.getId();
     }
+
 
     @Transactional(readOnly = true)
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable, String currentUserEmail) {
