@@ -188,7 +188,7 @@ public class ItemController {
                                              Authentication authentication) {
         try {
             String currentUserEmail = authentication.getName();
-            itemService.deleteItemByUuid(uuid, currentUserEmail);
+            itemService.softDeleteItemByUuid(uuid, currentUserEmail);
             return new ResponseEntity<>("상품이 성공적으로 삭제되었습니다.", HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>("상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);

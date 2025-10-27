@@ -205,4 +205,16 @@ public class ItemService {
         }
         // @Transactional 어노테이션 덕분에 save()를 명시적으로 호출하지 않아도 됨
     }
+
+    @Transactional
+    public void softDeleteItemByUuid(UUID uuid, String currentUserEmail) {
+        Item item = itemRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 상품입니다."));
+
+        if (!item.getCreatedBy().equals(currentUserEmail)) {
+            throw new AccessDeniedException("작성자만 상품을 삭제할 수 있습니다.");
+        }
+
+        item.setIs_deleted(true);
+    }
 }

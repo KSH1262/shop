@@ -250,7 +250,7 @@ $(document).ready(function() {
 
 
 // itemForm.html
-$(document).ready(function(){
+$(document).ready(function () {
     var errorMessageElement = $("#errorContainer");
     if (errorMessageElement.length) {
         var errorMessage = errorMessageElement.data("error-message");
@@ -262,14 +262,17 @@ $(document).ready(function(){
     bindDomEvent();
 
     if ($('#itemUuidHidden').length) {
-        var itemIdForForm = $('#itemUuidHidden').val();
+        var itemUuidForForm = $('#itemUuidHidden').val();
+
+        // 역할 확인 (Admin/Seller 판별)
+        var isAdmin = /*[[${#authorization.expression('hasRole("ADMIN")')}]]*/ false;
 
         // 1. 삭제 버튼 클릭 이벤트
-        $('#deleteItemBtn').off('click').on('click', function(event) {
+        $('#deleteItemBtn').off('click').on('click', function (event) {
             event.preventDefault();
 
             if (!itemUuidForForm) {
-                alert('삭제할 상품 ID가 없습니다.');
+                alert('삭제할 상품 UUID가 없습니다.');
                 return;
             }
 
@@ -277,8 +280,10 @@ $(document).ready(function(){
                 var token = $("meta[name='_csrf']").attr("content");
                 var header = $("meta[name='_csrf_header']").attr("content");
 
+                var deleteUrl = isAdmin ? '/admin/item/' : '/seller/item/';
+
                 $.ajax({
-                    url: '/admin/item/' + itemUuidForForm,
+                    url: deleteUrl + itemUuidForForm,
                     type: 'DELETE',
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader(header, token);
@@ -287,7 +292,7 @@ $(document).ready(function(){
                         alert(result);
                         location.href = '/';
                     },
-                    error: function(jqXHR, status, error) {
+                    error: function(jqXHR) {
                         alert('상품 삭제에 실패했습니다: ' + jqXHR.responseText);
                     }
                 });
