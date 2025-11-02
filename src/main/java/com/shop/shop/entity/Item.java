@@ -66,6 +66,13 @@ public class Item extends BaseEntity{
         this.is_deleted = is_deleted;
     }
 
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
+
     public void deactivate() {
         this.is_deleted = true;
     }

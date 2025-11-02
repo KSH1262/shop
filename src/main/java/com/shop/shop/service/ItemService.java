@@ -85,7 +85,7 @@ public class ItemService {
         return itemFormDto;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ItemFormDto getItemDtlByUuid(UUID uuid, String currentUserEmail) {
         Item item = itemRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 상품입니다."));
@@ -93,6 +93,8 @@ public class ItemService {
         if (item.getIs_deleted()) {
             throw new EntityNotFoundException("요청하신 상품이 존재하지 않습니다.");
         }
+
+        item.incrementViewCount();
 
         List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(item.getId());
         List<ItemImgDto> itemImgDtoList = new ArrayList<>();
