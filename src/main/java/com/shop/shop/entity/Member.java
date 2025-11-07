@@ -1,6 +1,7 @@
 package com.shop.shop.entity;
 
 import com.shop.shop.constant.Role;
+import com.shop.shop.converter.AddressEncryptConverter;
 import com.shop.shop.dto.MemberFormDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class Member extends BaseEntity{
 
     private String password;
 
+    @Convert(converter = AddressEncryptConverter.class)
     private String address;
 
     @Enumerated(EnumType.STRING)

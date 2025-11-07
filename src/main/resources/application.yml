@@ -34,6 +34,9 @@ spring:
     mode: HTML
     cache: false
 
+  encryptor:
+    password: ${ENCRYPTION_KEY}
+
 cloud:
   aws:
     credentials:

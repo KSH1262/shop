@@ -18,68 +18,88 @@
   <script>
     var currentPage = [[${page}]];
   </script>
-  <script src="/js/order.js"></script>
-
 </head>
 
-
 <body>
-<div layout:fragment="content" class="container mt-4">
+<div layout:fragment="content" class="container mt-5">
 
-  <h2 class="mb-4">
-    구매 이력
-  </h2>
+  <h2 class="mb-4 fw-bold text-center">🧾 구매 이력</h2>
 
-  <div th:each="order : ${orders.getContent()}" class="card mb-4 shadow-sm">
-    <div class="card-header bg-light">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0" th:text="${order.orderDate} + ' 주문'"></h5>
-        <div>
-          <th:block th:if="${order.orderStatus.toString() == 'ORDER'}">
-            <button type="button" class="btn btn-sm btn-outline-secondary" th:value="${order.orderId}" onclick="cancelOrder(this.value)">주문취소</button>
-          </th:block>
-          <th:block th:unless="${order.orderStatus.toString() == 'ORDER'}">
-            <span class="text-muted">(취소 완료)</span>
-          </th:block>
+  <!-- 중앙 정렬 + 여백 균등 -->
+  <div class="row justify-content-center gx-0">
+    <div class="col-lg-8 col-md-10 col-sm-12 mx-auto px-0">
+
+      <!-- 주문 목록 -->
+      <div th:each="order : ${orders.getContent()}" class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4">
+          <h5 class="mb-0 fw-semibold" th:text="${order.orderDate} + ' 주문'"></h5>
+
+          <div>
+            <th:block th:if="${order.orderStatus.toString() == 'ORDER'}">
+              <button type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      th:value="${order.orderId}"
+                      onclick="cancelOrder(this.value)">
+                주문 취소
+              </button>
+            </th:block>
+
+            <th:block th:unless="${order.orderStatus.toString() == 'ORDER'}">
+              <span class="text-muted small">(취소 완료)</span>
+            </th:block>
+          </div>
+        </div>
+
+        <div class="card-body px-4">
+          <!-- 주문 항목 리스트 -->
+          <div th:each="orderItem : ${order.orderItemDtoList}"
+               class="row align-items-center bg-light rounded p-3 mb-3 mx-0">
+
+            <div class="col-3 text-center">
+              <img th:src="${orderItem.imgUrl}"
+                   th:alt="${orderItem.itemNm}"
+                   class="img-fluid rounded shadow-sm"
+                   style="width:100px; height:100px; object-fit:cover;">
+            </div>
+
+            <div class="col-6">
+              <h6 class="fw-bold mb-1" th:text="${orderItem.itemNm}"></h6>
+              <p class="mb-0 text-muted small">
+                가격: <span th:text="${#numbers.formatInteger(orderItem.orderPrice, 3, 'COMMA')} + '원'"></span><br>
+                수량: <span th:text="${orderItem.count} + '개'"></span>
+              </p>
+            </div>
+
+            <div class="col-3 text-end">
+              <p class="fw-semibold text-dark mb-0"
+                 th:text="${#numbers.formatInteger(orderItem.orderPrice * orderItem.count, 3, 'COMMA')} + '원'"></p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card-body">
-      <div th:each="orderItem : ${order.orderItemDtoList}" class="row mb-3 align-items-center">
-        <div class="col-2">
-          <img th:src="${orderItem.imgUrl}" class="img-fluid rounded" th:alt="${orderItem.itemNm}">
-        </div>
-        <div class="col-10">
-          <h6 class="font-weight-bold mb-1" th:text="${orderItem.itemNm}"></h6>
-          <p class="mb-0 text-muted">
-            <span th:text="${orderItem.orderPrice} +'원'"></span>
-            <span class="ms-2" th:text="${orderItem.count} +'개'"></span>
-          </p>
-        </div>
+
+      <!-- 페이지네이션 -->
+      <div th:with="start=${(orders.number/maxPage)*maxPage + 1},
+                    end=(${(orders.totalPages == 0) ? 1 : (start + (maxPage - 1) < orders.totalPages ? start + (maxPage - 1) : orders.totalPages)})">
+
+        <ul class="pagination justify-content-center mt-4">
+          <li class="page-item" th:classappend="${orders.number eq 0} ? 'disabled'">
+            <a class="page-link" th:href="@{'/orders/' + ${orders.number-1}}">이전</a>
+          </li>
+
+          <li class="page-item"
+              th:each="page : ${#numbers.sequence(start, end)}"
+              th:classappend="${orders.number eq page-1} ? 'active'">
+            <a class="page-link" th:href="@{'/orders/' + ${page-1}}" th:text="${page}"></a>
+          </li>
+
+          <li class="page-item" th:classappend="${orders.number+1 ge orders.totalPages} ? 'disabled'">
+            <a class="page-link" th:href="@{'/orders/' + ${orders.number+1}}">다음</a>
+          </li>
+        </ul>
       </div>
+
     </div>
-  </div>
-
-  <div th:with="start=${(orders.number/maxPage)*maxPage + 1}, end=(${(orders.totalPages == 0) ? 1 : (start + (maxPage - 1) < orders.totalPages ? start + (maxPage - 1) : orders.totalPages)})" >
-    <ul class="pagination justify-content-center mt-4">
-
-      <li class="page-item" th:classappend="${orders.number eq 0}?'disabled':''">
-        <a th:href="@{'/orders/' + ${orders.number-1}}" aria-label='Previous' class="page-link">
-          <span aria-hidden='true'>Previous</span>
-        </a>
-      </li>
-
-      <li class="page-item" th:each="page: ${#numbers.sequence(start, end)}" th:classappend="${orders.number eq page-1}?'active':''">
-        <a th:href="@{'/orders/' + ${page-1}}" th:inline="text" class="page-link">[[${page}]]</a>
-      </li>
-
-      <li class="page-item" th:classappend="${orders.number+1 ge orders.totalPages}?'disabled':''">
-        <a th:href="@{'/orders/' + ${orders.number+1}}" aria-label='Next' class="page-link">
-          <span aria-hidden='true'>Next</span>
-        </a>
-      </li>
-
-    </ul>
   </div>
 </div>
 </body>
