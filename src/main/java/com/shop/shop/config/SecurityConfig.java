@@ -1,5 +1,6 @@
 package com.shop.shop.config;
 
+import com.shop.shop.service.CustomOAuth2UserService;
 import com.shop.shop.service.MemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,18 +16,29 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Configuration
 public class SecurityConfig {
 
+    private final OAuthExtraInfoFilter oAuthExtraInfoFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final MemberService memberService;
 
-    public SecurityConfig(MemberService memberService) {
+    public SecurityConfig(OAuthExtraInfoFilter oAuthExtraInfoFilter,
+                          CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+                          CustomOAuth2UserService customOAuth2UserService,
+                          MemberService memberService) {
+        this.oAuthExtraInfoFilter = oAuthExtraInfoFilter;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+        this.customOAuth2UserService = customOAuth2UserService;
         this.memberService = memberService;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
-                .csrf(csrf -> csrf.csrfTokenRepository(new CookieCsrfTokenRepository()))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/members/**","/css/**", "/js/**", "/images/**","/item/**", "/img/**").permitAll()
+                        .requestMatchers("/","/members/**","/css/**", "/js/**", "/images/**","/item/**", "/img/**","/oauth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/seller/**").hasRole("SELLER")
                         .anyRequest().authenticated()
@@ -37,9 +49,15 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/members/login")
                         .loginProcessingUrl("/members/login") // 스프링 시큐리티가 해당 주소로 요청오는 로그인을 가로채서 대신 로그인 해줌
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/")
                         .usernameParameter("email")
                         .failureUrl("/members/login/error")
+                ).oauth2Login(oauth -> oauth
+                        .loginPage("/members/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(customOAuth2SuccessHandler)
                 ).logout(logout -> logout
                         .logoutUrl("/logout")  // 로그아웃 요청 URL
                         .logoutSuccessUrl("/")  // 로그아웃 후 메인 페이지로 이동
@@ -50,12 +68,8 @@ public class SecurityConfig {
                         .accessDeniedPage("/error/403")
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 );
+        http.addFilterAfter(oAuthExtraInfoFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class);
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){ // 비밀번호 암호화
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

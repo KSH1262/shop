@@ -60,4 +60,10 @@ public class MemberService implements UserDetailsService { // MemberService 가 
             member.deactivate(); // 정상 → 정지
         }
     }
+
+    @Transactional(readOnly = true)
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + email));
+    }
 }

@@ -67,6 +67,13 @@
           </div>
           <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="fieldError mt-1 text-danger"></p>
         </div>
+        <div class="mt-4 text-center">
+          <!-- 네이버 가입 버튼 -->
+          <a href="/oauth2/authorization/naver" class="btn w-100 d-flex align-items-center justify-content-center"
+             style="background-color:#03C75A; color:white; border:none; font-weight:bold;">
+            네이버로 가입하기
+          </a>
+        </div>
 
         <button type="submit" class="btn btn-primary w-100 mt-3">회원가입</button>
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">

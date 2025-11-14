@@ -1,5 +1,6 @@
 package com.shop.shop.controller;
 
+import com.shop.shop.constant.Role;
 import com.shop.shop.dto.MemberFormDto;
 import com.shop.shop.entity.Member;
 import com.shop.shop.service.MemberService;
@@ -57,5 +58,41 @@ public class MemberController {
     public String loginError(Model model){
         model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요.");
         return "member/memberLoginForm";
+    }
+
+    // 추가정보 입력 폼
+    @GetMapping("/oauth/extra")
+    public String oauthExtraInfoForm(Model model) {
+        model.addAttribute("memberFormDto", new MemberFormDto());
+        return "member/oauthExtraForm"; // 새로 만들 html
+    }
+
+    // 추가정보 저장 처리
+    @PostMapping("/oauth/extra")
+    public String saveExtraInfo(@Valid MemberFormDto memberFormDto,
+                                BindingResult bindingResult,
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            return "member/oauthExtraForm";
+        }
+
+        String email = memberFormDto.getEmail();
+        Member member = memberService.findByEmail(email);
+
+        if (member == null) {
+            model.addAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
+            return "member/oauthExtraForm";
+        }
+
+        // 주소 병합 및 저장
+        memberFormDto.mergeAddress();
+        member.setAddress(memberFormDto.getAddress());
+
+        // 🔹 String → Enum 변환
+        member.setRole(Role.valueOf(memberFormDto.getRole()));
+
+        memberService.saveMember(member);
+
+        return "redirect:/";
     }
 }

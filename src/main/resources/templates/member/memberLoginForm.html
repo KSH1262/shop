@@ -37,7 +37,12 @@
             <div class="d-grid gap-2 mt-4">
               <button type="submit" class="btn btn-primary">로그인</button>
               <button type="button" class="btn btn-secondary" onclick="location.href='/members/new'">회원가입</button>
+              <a href="/oauth2/authorization/naver" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center"
+                 style="background-color:#03C75A; color:white; border:none; font-weight:bold;">
+                네이버로 로그인
+              </a>
             </div>
+
 
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
           </form>
