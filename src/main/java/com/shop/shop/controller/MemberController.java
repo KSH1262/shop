@@ -88,7 +88,7 @@ public class MemberController {
         memberFormDto.mergeAddress();
         member.setAddress(memberFormDto.getAddress());
 
-        // 🔹 String → Enum 변환
+        // String → Enum 변환
         member.setRole(Role.valueOf(memberFormDto.getRole()));
 
         memberService.saveMember(member);

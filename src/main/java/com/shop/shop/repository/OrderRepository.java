@@ -33,7 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllWithOrderItemsAndItems();
 
     @Query("select new com.shop.shop.dto.SellerOrderDto(" +
-            "o.id, m.email, m.address, i.itemNm, oi.count, " + // ✅ m.address 추가
+            "o.id, m.email, m.address, i.itemNm, oi.count, " + // m.address 추가
             "o.orderDate, o.orderStatus, im.imgUrl) " +
             "from Order o " +
             "join o.member m " +

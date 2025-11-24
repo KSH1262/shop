@@ -3,6 +3,7 @@ package com.shop.shop.controller;
 import com.shop.shop.dto.SellerOrderDto;
 import com.shop.shop.entity.Order;
 import com.shop.shop.repository.OrderRepository;
+import com.shop.shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,16 +18,14 @@ import java.util.List;
 @RequestMapping("/seller/orders")
 public class SellerOrderController {
 
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     @GetMapping
     public String sellerOrders(Model model, Principal principal) {
         String sellerEmail = principal.getName();
-
-        // 엔티티 대신 DTO 직접 조회
-        List<SellerOrderDto> orders = orderRepository.findSellerOrders(sellerEmail);
+        List<SellerOrderDto> orders = orderService.getSellerOrders(sellerEmail);
 
         model.addAttribute("orders", orders);
-        return "order/sellerOrderList";
+        return "seller/sellerOrderList";
     }
 }

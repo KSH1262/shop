@@ -3,6 +3,7 @@ package com.shop.shop.service;
 import com.shop.shop.dto.OrderDto;
 import com.shop.shop.dto.OrderHistDto;
 import com.shop.shop.dto.OrderItemDto;
+import com.shop.shop.dto.SellerOrderDto;
 import com.shop.shop.entity.*;
 import com.shop.shop.repository.ItemImgRepository;
 import com.shop.shop.repository.ItemRepository;
@@ -117,6 +118,11 @@ public class OrderService {
         orderRepository.save(order); // 주문 데이터 저장
 
         return order.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SellerOrderDto> getSellerOrders(String sellerEmail) {
+        return orderRepository.findSellerOrders(sellerEmail);
     }
 
 }
