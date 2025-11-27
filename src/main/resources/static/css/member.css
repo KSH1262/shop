@@ -1,10 +1,10 @@
 
-/* memberForm */
-.fieldError{
+/*  Form Error */
+.fieldError {
   color: #bd2130;
 }
 
-/* memberLoginForm */
-.error{
+/* 로그인 에러 메시지 */
+.error {
   color: #bd2130;
 }

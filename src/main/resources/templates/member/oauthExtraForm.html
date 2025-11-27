@@ -6,53 +6,42 @@
 <head>
   <meta charset="UTF-8">
   <title>추가 정보 입력</title>
-  <link rel="stylesheet" th:href="@{/css/member.css}">
+  <th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+  </th:block>
 </head>
 
 <body>
 <div layout:fragment="content" class="container mt-5" style="max-width: 720px;">
   <h3 class="text-center mb-4">추가 정보 입력</h3>
 
-  <!-- th:object 추가! -->
   <form th:action="@{/oauth/join-extra}" th:object="${memberFormDto}" method="post"
         class="p-4 border rounded bg-light">
 
-    <!-- 이름 -->
     <div class="mb-3">
       <label class="form-label">이름</label>
       <input type="text" th:field="*{name}" class="form-control" readonly>
     </div>
 
-    <!-- 이메일 -->
     <div class="mb-3">
       <label class="form-label">이메일</label>
       <input type="email" th:field="*{email}" class="form-control" readonly>
     </div>
 
-    <!-- 주소 -->
     <div class="mb-3">
       <label class="form-label">주소</label>
 
       <div class="input-group mb-2">
-        <input type="text" th:field="*{zipcode}" class="postcodify_postcode5 form-control"
-               placeholder="우편번호" readonly>
-        <button type="button" id="postcodify_search_button" class="btn btn-outline-secondary">
-          주소 검색
-        </button>
+        <input type="text" th:field="*{zipcode}" class="postcodify_postcode5 form-control" placeholder="우편번호" readonly>
+        <button type="button" id="postcodify_search_button" class="btn btn-outline-secondary">주소 검색</button>
       </div>
 
-      <input type="text" th:field="*{roadAddress}" class="postcodify_address form-control mb-2"
-             placeholder="도로명 주소" readonly>
+      <input type="text" th:field="*{roadAddress}" class="postcodify_address form-control mb-2" placeholder="도로명 주소" readonly>
+      <input type="text" th:field="*{detailAddress}" class="postcodify_details form-control" placeholder="상세 주소를 입력해주세요">
 
-      <input type="text" th:field="*{detailAddress}"
-             class="postcodify_details form-control"
-             placeholder="상세 주소를 입력해주세요">
-
-      <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}"
-         class="fieldError mt-1 text-danger"></p>
+      <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="fieldError mt-1 text-danger"></p>
     </div>
 
-    <!-- 회원 유형 -->
     <div class="mb-3">
       <label class="form-label">회원 유형</label>
       <div>
@@ -76,15 +65,8 @@
 </div>
 </body>
 
-<!-- 주소 API 스크립트 (기존 회원가입과 동일) -->
 <th:block layout:fragment="script">
   <script src="https://cdn.poesis.kr/post/search.min.js"></script>
-
-  <script>
-    $(function() {
-      $("#postcodify_search_button").postcodifyPopUp();
-    });
-  </script>
+  <script th:src="@{/js/member.js}"></script>
 </th:block>
-
 </html>

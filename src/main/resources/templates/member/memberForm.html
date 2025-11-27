@@ -38,7 +38,7 @@
           <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldError mt-1 text-danger"></p>
         </div>
 
-        <!-- 주소 (Postcodify 적용) -->
+        <!-- 주소 -->
         <div class="mb-3">
           <label class="form-label">주소</label>
           <div class="input-group mb-2">
@@ -65,10 +65,9 @@
               <label class="form-check-label" for="seller">판매회원</label>
             </div>
           </div>
-          <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="fieldError mt-1 text-danger"></p>
         </div>
+
         <div class="mt-4 text-center">
-          <!-- 네이버 가입 버튼 -->
           <a href="/oauth2/authorization/naver" class="btn w-100 d-flex align-items-center justify-content-center"
              style="background-color:#03C75A; color:white; border:none; font-weight:bold;">
             네이버로 가입하기
@@ -84,12 +83,7 @@
 
 <th:block layout:fragment="script">
   <script src="https://cdn.poesis.kr/post/search.min.js"></script>
-
-  <script>
-    $(function() {
-      $("#postcodify_search_button").postcodifyPopUp();
-    });
-  </script>
+  <script th:src="@{/js/member.js}"></script>
 </th:block>
 </body>
 </html>
